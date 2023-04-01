@@ -2,7 +2,7 @@
 
 LensHack was initialized using the CLI (sveltekit, tailwind, skeleton)
 
-## npm create skeleton-app@latest my-skeleton-app
+### npm create skeleton-app@latest my-skeleton-app
 
 Next threlte was added to the project following the documentation from
 
@@ -10,10 +10,10 @@ Next threlte was added to the project following the documentation from
 
 and using the command
 
-## npm install three @threlte/core@next @threlte/extras@next @threlte/rapier@next @dimforge/rapier3d-compat @threlte/theatre@next @theatre/core @theatre/studio @types/three
+### npm install three @threlte/core@next @threlte/extras@next @threlte/rapier@next @dimforge/rapier3d-compat @threlte/theatre@next @theatre/core @theatre/studio @types/three
 
 One cavaet: the orbital controls and intraactivity would failed due to not having the file
 
-## node_modules/three/examples/jsm/objects/GroundProjectedEnv.js
+### node_modules/three/examples/jsm/objects/GroundProjectedEnv.js
 
 I found this file in an old project and copied into this project. Now the app works. This is a little concerning.
