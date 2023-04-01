@@ -1,38 +1,19 @@
-# create-svelte
+# LensHack Notes
 
-Everything you need to build a Svelte project, powered by [`create-svelte`](https://github.com/sveltejs/kit/tree/master/packages/create-svelte).
+LensHack was initialized using the CLI (sveltekit, tailwind, skeleton)
 
-## Creating a project
+## npm create skeleton-app@latest my-skeleton-app
 
-If you're seeing this, you've probably already done this step. Congrats!
+Next threlte was added to the project following the documentation from
 
-```bash
-# create a new project in the current directory
-npm create svelte@latest
+### https://next.threlte.xyz/docs/learn/getting-started/installation
 
-# create a new project in my-app
-npm create svelte@latest my-app
-```
+and using the command
 
-## Developing
+## npm install three @threlte/core@next @threlte/extras@next @threlte/rapier@next @dimforge/rapier3d-compat @threlte/theatre@next @theatre/core @theatre/studio @types/three
 
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
+One cavaet: the orbital controls and intraactivity would failed due to not having the file
 
-```bash
-npm run dev
+## node_modules/three/examples/jsm/objects/GroundProjectedEnv.js
 
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
-```
-
-## Building
-
-To create a production version of your app:
-
-```bash
-npm run build
-```
-
-You can preview the production build with `npm run preview`.
-
-> To deploy your app, you may need to install an [adapter](https://kit.svelte.dev/docs/adapters) for your target environment.
+I found this file in an old project and copied into this project. Now the app works. This is a little concerning.
