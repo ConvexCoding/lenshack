@@ -3,6 +3,7 @@
 	//import Scene from './Scene.svelte';
 	import Scene1 from './Scene1.svelte';
 	import Scene2 from './Scene2.svelte';
+	import Scene3 from './Scene3.svelte';
 </script>
 
 <div class="outercontainer flex h-full flex-col overflow-y-auto pb-10">
@@ -14,9 +15,9 @@
 	will cover five analysis types that can be used to evaluate lens performance.
 	<br />
 	<br />
-	<div class="container h-96 w-96 border-8 border-yellow-500 bg-white">
+	<div class="container h-2/3 w-2/3 border-8 border-yellow-500 bg-white">
 		<Canvas>
-			<Scene2 />
+			<Scene3 />
 		</Canvas>
 	</div>
 	<br />
@@ -28,7 +29,7 @@
 	point, but the rays in 1b do.
 	<br />
 	<br />
-	<div class="container h-96 w-96 border-8 border-red-500 bg-white">
+	<div class="container h-2/3 w-2/3 border-8 border-red-500 bg-white">
 		<Canvas>
 			<Scene1 />
 		</Canvas>

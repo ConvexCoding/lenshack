@@ -13,7 +13,9 @@
 	<OrbitControls enableDamping enableZoom enableRotate enablePan />
 </T.PerspectiveCamera>
 
+<T.DirectionalLight position={[3, 10, 7]} />
+
 <T.Mesh position.y={1}>
 	<T.BoxGeometry args={[2, 4, 2]} />
-	<T.MeshBasicMaterial color="red" />
+	<T.MeshPhongMaterial color="blue" />
 </T.Mesh>
