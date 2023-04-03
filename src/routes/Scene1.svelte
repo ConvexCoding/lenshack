@@ -1,22 +1,22 @@
 <script>
-  import { T, useFrame } from '@threlte/core';
-  import { interactivity } from '@threlte/extras';
-  import { spring } from 'svelte/motion';
+  import { T, useFrame } from '@threlte/core'
+  import { interactivity } from '@threlte/extras'
+  import { spring } from 'svelte/motion'
 
-  interactivity();
-  const scale = spring(1);
-  let rotation = 0;
+  interactivity()
+  const scale = spring(1)
+  let rotation = 0
 
   useFrame((state, delta) => {
-    rotation += delta;
-  });
+    rotation += delta
+  })
 </script>
 
 <T.PerspectiveCamera
   makeDefault
   position={[10, 10, 10]}
   on:create={({ ref }) => {
-    ref.lookAt(0, 1, 0);
+    ref.lookAt(0, 1, 0)
   }}
 />
 <T.DirectionalLight position={[3, 10, 7]} />

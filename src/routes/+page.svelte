@@ -1,9 +1,9 @@
 <script lang="ts">
-  import { Canvas } from '@threlte/core';
+  import { Canvas } from '@threlte/core'
   //import Scene from './Scene.svelte';
-  import Scene1 from './Scene1.svelte';
-  import Scene2 from './Scene2.svelte';
-  import Scene3 from './Scene3.svelte';
+  import Scene1 from './Scene1.svelte'
+  import Scene2 from './Scene2.svelte'
+  import Scene3 from './Scene3.svelte'
 </script>
 
 <div class="outercontainer flex h-full flex-col overflow-y-auto pb-10">
