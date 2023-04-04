@@ -1,0 +1,18 @@
+h1,
+h2,
+h3 {
+  @apply text-center text-primary-600;
+}
+
+math {
+  @apply card w-full py-6 md:py-10;
+}
+
+math,
+mrow {
+  @apply text-2xl;
+}
+
+.wrapper {
+  @apply h-[300px] w-full self-center bg-white shadow rounded-token;
+}

@@ -1,0 +1,62 @@
+<script lang="ts">
+  import { Canvas } from '@threlte/core'
+  import { MirroredRepeatWrapping } from 'three'
+  import GaussEquationCard from './GaussEquationCard.svelte'
+  import GaussProp from   './equations/GaussProp.svelte'
+  import Rayleigh from './equations/Rayleigh.svelte'
+  import Scene from './scenes/Scene.svelte'
+  import Scene1 from './scenes/Scene1.svelte'
+  import Scene2 from './scenes/Scene2.svelte'
+  import Scene3 from './scenes/Scene3.svelte'
+  import BeamProp from './scenes/BeamProp.svelte'
+</script>
+
+# **Gaussian Beams**
+
+### _How They Are Focused_
+
+Laser beams in general have been made popular to the general public by many of the science fiction movies of the past decades. In the real world one the most common types of laser beams is the Gaussian laser beam. Gaussian laser beams are a common tool in the laboratory and in industry. They are used in a variety of applications from eye surgery, laser drilling of circuit boards, and laser cutting of almost all know materials. Gaussian beam propagate (like all photons) in a straight line.
+
+Although laser beams are commonly thought to be collimated light, this is not the case. The beams propagate according to the following equation:
+
+<GaussProp />
+
+In this equation w(z) is the beam waist (or radius) at any given distance z - the distance the laser beam travels along it's optic axis. The value z<sub>r</sub> is the Rayleigh Range, which is a constant for a gaussian laser beam of wavelength, λ, and initial beam radius of w<sub>0</sub>. The equation for the Rayleigh Range constant is:
+
+<Rayleigh />
+
+Maybe graphic here showing prop of laser beam based on starting waist.
+
+<div class="wrapper">
+  <Canvas>
+    <BeamProp />
+  </Canvas>
+</div>
+
+next graphic show laser beam through Lenses and some text about Focused
+
+<div class="wrapper">
+  <Canvas>
+    <Scene1 />
+  </Canvas>
+</div>
+
+<div class="flex gap-4">
+  <GaussEquationCard />
+
+  <div class="card variant-soft-primary p-4 text-sm">
+    <h6>Notes:</h6>
+    <ol class="list-inside list-disc">
+      <li>f: focal length of lens</li>
+      <li>D: gaussian beam dia at 1/e² pwr pts</li>
+      <li>λ: wavelength of light in units of μm</li>
+      <li>f & D must be in the same units</li>
+    </ol>
+  </div>
+</div>
+
+<div class="wrapper">
+  <Canvas>
+    <Scene2 />
+  </Canvas>
+</div>

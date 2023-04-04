@@ -2,7 +2,7 @@
   import { OrbitControls } from '@threlte/extras'
   import { T } from '@threlte/core'
   import { LatheGeometry } from 'three'
-  import { xyToVector, generateLatheColors } from '../../lib/mathUtils'
+  import { xyToVector, generateLatheColors } from '$lib/mathUtils'
 
   const z: number[] = []
   const w: number[] = []
