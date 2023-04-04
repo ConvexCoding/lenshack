@@ -4,6 +4,7 @@
   import Gauss from './Equations/Gauss.svelte'
   import GaussProp from './Equations/GaussProp.svelte'
   import Rayleigh from './Equations/Rayleigh.svelte'
+  import BeamProp from './Scenes/BeamProp.svelte'
   import Scene from './Scenes/Scene.svelte'
   import Scene1 from './Scenes/Scene1.svelte'
   import Scene2 from './Scenes/Scene2.svelte'
@@ -67,6 +68,13 @@
   <div class="container h-2/3 w-2/3 border-8 border-red-500 bg-white">
     <Canvas>
       <Scene1 />
+    </Canvas>
+  </div>
+  <br />
+  <br />
+  <div class="container h-2/3 w-2/3 border-8 border-red-500 bg-white">
+    <Canvas>
+      <BeamProp />
     </Canvas>
   </div>
 </div>
