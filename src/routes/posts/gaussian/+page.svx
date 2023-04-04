@@ -1,7 +1,7 @@
 <script lang="ts">
   import { Canvas } from '@threlte/core'
   import { MirroredRepeatWrapping } from 'three'
-  import GaussEquationCard from './GaussEquationCard.svelte'
+  import GaussEquationCard from './equations/GaussEquationCard.svelte'
   import GaussProp from   './equations/GaussProp.svelte'
   import Rayleigh from './equations/Rayleigh.svelte'
   import Scene from './scenes/Scene.svelte'

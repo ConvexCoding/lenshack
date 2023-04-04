@@ -36,7 +36,7 @@
   $: ss = solveEquation(D, f, lambda)
 </script>
 
-<div class="{equationTextSize} card relative flex flex-1 justify-center gap-4 p-6 md:py-10">
+<div class="card relative flex flex-1 justify-center gap-4 p-6 md:py-10 {equationTextSize}">
   <div class="flex items-center font-serif">
     <span class:bg-green-300={debug} class="mr-3"> ss = </span>
 
