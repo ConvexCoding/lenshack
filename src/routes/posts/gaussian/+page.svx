@@ -33,13 +33,11 @@ Using the two equations above one can predict how the gaussian beam divergences 
   </Canvas>
 </div>
 
-next graphic show laser beam through Lenses and some text about Focused
+The real power of a laser beam is realized when a laser beam is passed through a lens and focused to a small point. This focused beam can have enormous intensity. Welding, cutting of thick steels, heat treating, and even drilling minute holes in circuit boards is accomplished with laser beams focused by lenses.
 
-<div class="wrapper">
-  <Canvas>
-    <Scene1 />
-  </Canvas>
-</div>
+<img class="h-96 w-auto" src="/beamthrulens.png" alt={'dummy'} />
+
+The above figure shows a LensKit.App (https://www.lenskit.app/) model of a laser beam passing through a ZnSe. The laser beam diameter at the focus of the lens can be estimated using (Calculator Equation - type in numbers for each variable):
 
 <div class="flex gap-4">
   <GaussEquationCard />
