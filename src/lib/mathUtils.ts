@@ -1,6 +1,26 @@
 import { Vector2, Vector3, BufferGeometry, BufferAttribute } from 'three'
+import { LineGeometry } from 'three/examples/jsm/lines/LineGeometry'
 import { Lut } from 'three/examples/jsm/math/Lut'
 
+
+export function genLineGeometry(pts: Vector3[]): LineGeometry {
+  const floatArray: Float32Array = Float32Array.from(pts.flatMap((v) => [v.x, v.y, v.z]))
+  const geo = new LineGeometry()
+  geo.setPositions(floatArray)
+  return geo
+}
+
+export function genLineSegment(segs: Float32Array): LineGeometry {
+  const geo = new LineGeometry()
+  geo.setPositions(segs)
+  return geo
+}
+
+export function genLineSegment2(v0: Vector3, v1: Vector3): LineGeometry {
+  const geo = new LineGeometry()
+  geo.setPositions(new Float32Array([v0.x, v0.y, v0.z, v1.x, v1.y, v1.z]))
+  return geo
+}
 
 export function generateLatheColors(
   image: BufferGeometry,

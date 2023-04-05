@@ -1,7 +1,7 @@
 <script lang="ts">
   import { OrbitControls } from '@threlte/extras'
   import { T } from '@threlte/core'
-  import { DoubleSide, LatheGeometry, Vector3 } from 'three'
+  import { AmbientLight, DoubleSide, LatheGeometry, Vector3 } from 'three'
   import { xyToVector } from '$lib/mathUtils'
   import Coords from '$lib/Coords.svelte'
 
@@ -50,6 +50,7 @@
 <T.DirectionalLight position={[-100, 0, 0]} intensity={0.75} />
 <T.DirectionalLight position={[0, 100, 0]} intensity={0.2} />
 <T.DirectionalLight position={[0, -100, 0]} intensity={0.2} />
+<T.AmbientLight intensity={0.5} />
 
 <T.Mesh
   geometry={image}
