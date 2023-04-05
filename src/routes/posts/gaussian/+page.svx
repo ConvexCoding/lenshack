@@ -25,7 +25,7 @@ In this equation w(z) is the beam waist (or radius) at any given distance z - th
 
 <Rayleigh />
 
-Maybe graphic here showing prop of laser beam based on starting waist.
+Using the two equations above one can predict how the gaussian beam divergences as it propagates away from the waist position. The next graph shows how a 1 micron laser beam with a starting w<sub>0</sub> of 0.5 mm will propagate over the 1st meter of it's life.
 
 <div class="wrapper">
   <Canvas>
