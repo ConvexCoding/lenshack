@@ -250,6 +250,43 @@ export function chooseAxisLimits(values: number[], ntics = 5): [number, number] 
   return [min, max]
 }
 
+export function setAxisLimits(minValue: number, maxValue: number, ntics = 5): [number, number] {
+  const range = maxValue - minValue
+  let min = 0
+  let max = 0
+  // special cases for data range
+  if (Math.abs(maxValue) === Math.abs(minValue)) {
+    min = -maxValue
+    max = maxValue
+    return [min, max]
+  }
+
+  const inc = range / ntics
+  const exp = getExponent(inc)
+  const inc2 = Math.ceil(inc / Math.pow(10, exp)) * Math.pow(10, exp)
+
+  // find closest increment to range
+  min = Math.floor(minValue / inc2) * inc2
+  max = Math.ceil(maxValue / inc2) * inc2
+
+  // TODO: Do we want this behavior?
+  // check for special cases where min is zero
+  const minMaxLimit = 0.00001
+  if (Math.abs(minValue) < minMaxLimit && Math.abs(maxValue) < minMaxLimit) {
+    // limit min/max bipolar axes
+    min = -minMaxLimit
+    max = minMaxLimit
+  } else if (minValue >= 0 && maxValue < minMaxLimit) {
+    // min value close to 0
+    min = 0.0
+  } else if (maxValue > -minMaxLimit && maxValue <= 0) {
+    // max value close to 0
+    max = 0.0
+  }
+
+  return [min, max]
+}
+
 export function formatAxisLimit(value: number, suffix: string, digits = 3): string {
   if (Math.abs(value) < 0.0000001) {
     return '0' + ' ' + suffix

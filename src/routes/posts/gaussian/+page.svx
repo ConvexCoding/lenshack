@@ -9,6 +9,7 @@
   import Scene2 from './scenes/Scene2.svelte'
   import Scene3 from './scenes/Scene3.svelte'
   import BeamProp from './scenes/BeamProp.svelte'
+  import BeamProp2 from './scenes/BeamProp2.svelte'
 </script>
 
 # **Gaussian Beams**
@@ -29,15 +30,21 @@ Using the two equations above one can predict how the gaussian beam divergences 
 
 <div class="wrapper">
   <Canvas>
+    <BeamProp2 />
+  </Canvas>
+</div>
+
+<div class="wrapper">
+  <Canvas>
     <BeamProp />
   </Canvas>
 </div>
 
-The real power of a laser beam is realized when a laser beam is passed through a lens and focused to a small point. This focused beam can have enormous intensity. Welding, cutting of thick steels, heat treating, and even drilling minute holes in circuit boards is accomplished with laser beams focused by lenses.
+The real power of a laser beam is realized when a laser beam is passed through a lens and focused to a small point. This focused beam can have an enormous intensity. Welding, cutting of thick steels, heat treating, and even drilling minute holes in circuit boards is accomplished with laser beams focused by lenses.
 
 <img class="h-96 w-auto" src="/beamthrulens.png" alt={'dummy'} />
 
-The above figure shows a LensKit.App (https://www.lenskit.app/) model of a laser beam passing through a ZnSe. The laser beam diameter at the focus of the lens can be estimated using (Calculator Equation - type in numbers for each variable):
+The above figure shows a LensKit.App (https://www.lenskit.app/) model of a laser beam passing through a ZnSe lens. The laser beam diameter at the focus of the lens can be estimated using the following equation (Calculator Equation - type in numbers for each variable):
 
 <div class="flex gap-4">
   <GaussEquationCard />
