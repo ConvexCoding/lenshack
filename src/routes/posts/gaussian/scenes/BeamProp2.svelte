@@ -15,12 +15,11 @@
   export let λ = 0.001
   export let n = 1
   export let maxz = 1000
+  export let zinc = 2
 
   const zr = (Math.PI * w0 * w0 * n) / λ
 
   // set constants
-  const zinc = 1
-
   // realize this could one statement but it's easier to read this way
   let maxW = w0 * Math.sqrt(1 + (maxz / zr) * (maxz / zr)) // max waist size needed for scale chart
   maxW = setAxisLimits(0, maxW, zinc)[1] // round up to nearest logical chart scale

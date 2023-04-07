@@ -1,6 +1,7 @@
 <script lang="ts">
   import { Canvas } from '@threlte/core'
   import { MirroredRepeatWrapping } from 'three'
+  import RayleighEquationCard from './equations/RayleighEquationCard.svelte'
   import GaussEquationCard from './equations/GaussEquationCard.svelte'
   import GaussProp from   './equations/GaussProp.svelte'
   import Rayleigh from './equations/Rayleigh.svelte'
@@ -26,11 +27,25 @@ In this equation w(z) is the beam waist (or radius) at any given distance z - th
 
 <Rayleigh />
 
-Using the two equations above one can predict how the gaussian beam divergences as it propagates away from the waist position. The next graph shows how a 1 micron laser beam with a starting w<sub>0</sub> of 0.5 mm will propagate over the 1st meter of it's life.
+<div class="flex gap-4">
+  <RayleighEquationCard />
+
+  <div class="card variant-soft-primary p-4 text-sm">
+    <h6>Notes:</h6>
+    <ol class="list-inside list-disc">
+      <li>w0: begining beam waist or semi-diameter</li>
+      <li>n: index of refraction of the medium</li>
+      <li>λ: wavelength of light in units of μm</li>
+      <li>all values must be in mm</li>
+    </ol>
+  </div>
+</div>
+
+Using the two equations above one can predict how the gaussian beam divergences as it propagates away from the waist position through a medium with index of refraction, n. The next graph shows how a 1 micron laser beam with a starting w<sub>0</sub> of 0.5 mm will propagate over the 1st of it's life.
 
 <div class="wrapper">
   <Canvas>
-    <BeamProp2 w0={0.5} λ={0.005} n={1.0} maxz={2000}/>
+    <BeamProp2 w0={0.5} λ={0.005} n={1.0} maxz={1000} zinc={5}/>
   </Canvas>
 </div>
 
@@ -42,7 +57,7 @@ Using the two equations above one can predict how the gaussian beam divergences 
 
 The real power of a laser beam is realized when a laser beam is passed through a lens and focused to a small point. This focused beam can have an enormous intensity. Welding, cutting of thick steels, heat treating, and even drilling minute holes in circuit boards is accomplished with laser beams focused by lenses.
 
-<img class="h-96 w-auto" src="/beamthrulens.png" alt={'dummy'} />
+<img class="h-96 w-auto" src="/beamthrulens.webp" alt={'dummy'} />
 
 The above figure shows a LensKit.App (https://www.lenskit.app/) model of a laser beam passing through a ZnSe lens. The laser beam diameter at the focus of the lens can be estimated using the following equation (Calculator Equation - type in numbers for each variable):
 
@@ -59,6 +74,10 @@ The above figure shows a LensKit.App (https://www.lenskit.app/) model of a laser
     </ol>
   </div>
 </div>
+
+Here f is the focal length of the lens, D is the gaussian beam diameter (2 * w0), and of course λ is, as in all other equations in this post, the wavelength of the laser light. If the focal length and beam diameter are in mm's, and the wavelength in microns, then the resulting spot size, ss, will be in microns. The sketch below shows what this might look like graphically.
+
+<img class="h-64 w-auto m-5" src="/gausswithlens.webp" alt={'dummy'} />
 
 <div class="wrapper">
   <Canvas>
