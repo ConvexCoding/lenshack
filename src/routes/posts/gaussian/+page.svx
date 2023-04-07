@@ -30,7 +30,7 @@ Using the two equations above one can predict how the gaussian beam divergences 
 
 <div class="wrapper">
   <Canvas>
-    <BeamProp2 />
+    <BeamProp2 w0={0.5} λ={0.005} n={1.0} maxz={2000}/>
   </Canvas>
 </div>
 
