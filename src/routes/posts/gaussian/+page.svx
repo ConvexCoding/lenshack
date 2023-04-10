@@ -3,14 +3,20 @@
   import { MirroredRepeatWrapping } from 'three'
   import RayleighEquationCard from './equations/RayleighEquationCard.svelte'
   import GaussEquationCard from './equations/GaussEquationCard.svelte'
+  import GaussIntensityEquation from './equations/GaussIntensityEquation.svelte'
   import GaussProp from   './equations/GaussProp.svelte'
   import Rayleigh from './equations/Rayleigh.svelte'
+  import GaussDistributionChart2D from './scenes/GaussDistributionChart2D.svelte'
+  import GaussDistributionChart3D from './scenes/GaussDistributionChart3D.svelte'
   import Scene from './scenes/Scene.svelte'
   import Scene1 from './scenes/Scene1.svelte'
   import Scene2 from './scenes/Scene2.svelte'
   import Scene3 from './scenes/Scene3.svelte'
   import BeamProp from './scenes/BeamProp.svelte'
   import BeamProp2 from './scenes/BeamProp2.svelte'
+  import { RangeSlider, SlideToggle } from '@skeletonlabs/skeleton'
+  import Form from './scenes/Form.svelte'
+
 </script>
 
 # **Gaussian Beams**
@@ -18,6 +24,8 @@
 ### _How They Are Focused_
 
 Laser beams in general have been made popular to the general public by many of the science fiction movies of the past decades. In the real world one the most common types of laser beams is the Gaussian laser beam. Gaussian laser beams are a common tool in the laboratory and in industry. They are used in a variety of applications from eye surgery, laser drilling of circuit boards, and laser cutting of almost all know materials. Gaussian beam propagate (like all photons) in a straight line.
+
+<i>Note: gaussian beams naturally have a gaussian distribution which means that their diameters have no maximum extent (theoretically they go on to infinity). So how do we talk about beam diameters or beam waists then? It is common practice to define the gaussian beam waist as the radial distance from the center of the beam where the intensity falls to 1/e² of its peak value.</i>
 
 Although laser beams are commonly thought to be collimated light, this is not the case. The beams propagate according to the following equation:
 
@@ -79,8 +87,24 @@ Here f is the focal length of the lens, D is the gaussian beam diameter (2 * w0)
 
 <img class="h-64 w-auto m-5" src="/gausswithlens.webp" alt={'dummy'} />
 
+In general a lens will perform a fourier transform on the input beam of light. The intensity distribution at focus will depend on the intensity distribution of the input light. So for a light beam with a uniform intensity, the intensity distribution at focus of a lens will have an Airy Disc distribution. One of the important aspects of a light beam with a gaussian distribution is that the fourier transform by a lens produces a gaussian distribution at focus. In fact the beam will have a gaussian distribution at all points along its path, assuming that any lens or mirror that the beam encounters is free of aberrations. The equation for the intensity distribution of a gaussian beam is:
+
+<GaussIntensityEquation />
+
+Here, I<sub>0</sub> is the peak intensity at the center of the beam, r is the radial distance from the center of the beam, and w<sub>0</sub> is the gaussian waist of the beam. The plot below shows the intensity distribution for a beam with a waist of 0.2 mm. In this plot we have normalized the peak intensity (I<sub>0</sub>) to 1.0.
+
+<div class="wrapper">
+  <Canvas>
+    <GaussDistributionChart2D w0={0.2} intensity={0.5}/>
+  </Canvas>
+</div>
+
+<GaussDistributionChart3D w={0.2} i0={0.8}/>
+
 <div class="wrapper">
   <Canvas>
     <Scene2 />
   </Canvas>
 </div>
+
+

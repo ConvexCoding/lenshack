@@ -339,16 +339,16 @@ export function genGridLines(xoffset: number, gridWidth: number, gridHeight: num
         gridWidth,
       ])
     )
-    gridLines.push(
-      new Float32Array([
-        xoffset,
-        -(i * gridHeight) / numDiv,
-        -gridWidth,
-        xoffset,
-        -(i * gridHeight) / numDiv,
-        gridWidth,
-      ])
-    )
+      gridLines.push(
+        new Float32Array([
+          xoffset,
+          -(i * gridHeight) / numDiv,
+          -gridWidth,
+          xoffset,
+          -(i * gridHeight) / numDiv,
+          gridWidth,
+        ])
+      )
   }
 
   for (let i = 1; i <= numDiv; i++) {
@@ -362,16 +362,60 @@ export function genGridLines(xoffset: number, gridWidth: number, gridHeight: num
         (i * gridWidth) / numDiv,
       ])
     )
+      gridLines.push(
+        new Float32Array([
+          xoffset,
+          -gridHeight,
+          -(i * gridWidth) / numDiv,
+          xoffset,
+          gridHeight,
+          -(i * gridWidth) / numDiv,
+        ])
+      )
+  }
+  return gridLines
+}
+
+export function grid2Quad(xoffset: number, gridWidth: number, gridHeight: number, xDivs = 5, yDivs = 5) {
+  const gridLines: Float32Array[] = []
+  // place central x and y axes first 2 elements of array
+  gridLines.push(new Float32Array([xoffset, 0, -gridWidth, xoffset, 0, gridWidth]))
+  gridLines.push(new Float32Array([xoffset, 0, 0, xoffset, gridHeight, 0]))
+
+  for (let i = 1; i <= yDivs; i++) {
     gridLines.push(
       new Float32Array([
         xoffset,
-        -gridHeight,
-        -(i * gridWidth) / numDiv,
+        (i * gridHeight) / yDivs,
+        -gridWidth,
         xoffset,
-        gridHeight,
-        -(i * gridWidth) / numDiv,
+        (i * gridHeight) / yDivs,
+        gridWidth,
       ])
     )
+  }
+
+  for (let i = 1; i <= xDivs; i++) {
+    gridLines.push(
+      new Float32Array([
+        xoffset,
+        0,
+        (i * gridWidth) / xDivs,
+        xoffset,
+        gridHeight,
+        (i * gridWidth) / xDivs,
+      ])
+    )
+      gridLines.push(
+        new Float32Array([
+          xoffset,
+          0,
+          -(i * gridWidth) / xDivs,
+          xoffset,
+          gridHeight,
+          -(i * gridWidth) / xDivs,
+        ])
+      )
   }
   return gridLines
 }
