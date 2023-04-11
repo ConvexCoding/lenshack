@@ -70,7 +70,7 @@
 </script>
 
 <div class="wrapper">
-  <div class="absolute flex w-1/3 flex-col">
+  <div class="absolute flex w-1/5 flex-col">
     <div class="ml-5">
       <RangeSlider
         name="intensity-slider"
