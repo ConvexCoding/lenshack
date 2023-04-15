@@ -59,7 +59,7 @@ In this equation w(z) is the beam waist (or radius) at any given distance z - th
 
 Using the two equations above one can predict how the gaussian beam diverges as it propagates away from the waist position through a medium with index of refraction, n. The next graph shows this divergence of a laser beam over the 1st 2 meters of it's life. We can assuming that unless otherwise stated the transport medium for the beam is air with an approximate index of 1.0. Change the sliders for waist and wavelength to get a feeling for how these parameters change the beam propagation.
 
-<BeamProp2 zstart={0} zend={2000} zinc={5}/>
+<BeamProp2 zstart={0} zend={2000} zinc={5} showDivergence={false}/>
 <p style="text-align: center;"> <strong> Graph 1: Gaussian Beam Propagation. </strong></p>
 
 <div class="wrapper">
@@ -77,7 +77,7 @@ Inserting the Rayleigh Range equation (Equation 2) into Equation 1 produces a mo
 
 Looking again at the beam propagation with distance along the Z-axis it is apparent that the beam <strong>slope</strong> or beam divergence is changing as it propagates away from the waist. At the waist the beam is collimated, i.e. the beam has zero divergence. As the beam moves awway from the waist the slope steadily increases until it reaches a maximum at large distances from the waist. Taking the first derivative of Equation 3 with respect to Z provides the slope of the beam at various points along the Z axis.
 
-<BeamProp2 w0={0.1} λ={1} zstart={-100} zend={100} zinc={1} showRangeSliders={false}/>
+<BeamProp2 w0={0.1} λ={1} zstart={-100} zend={100} zinc={1} showRangeSliders={false} showDivergence={true}/>
 <p style="text-align: center;"> <strong> Graph 2: Gaussian Beam Propagation. </strong></p>
 
 When the beam is very far from the waist of the laser beam (Z/Z<sub>r</sub>) the beam divergence becomes linear with a value of:

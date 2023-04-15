@@ -2,7 +2,7 @@
   import { OrbitControls } from '@threlte/extras'
   import { Canvas, T } from '@threlte/core'
   import { Text } from '@threlte/extras'
-  import { DoubleSide } from 'three'
+  import { BufferGeometry, DoubleSide, LineDashedMaterial, Vector3 } from 'three'
   import { genGridLines, genLineSegment, setAxisLimits } from '$lib/mathUtils'
   import Coords from '$lib/Coords.svelte'
   import { Line2 } from 'three/examples/jsm/lines/Line2'
@@ -16,6 +16,7 @@
   export let zend = 2000
   export let zinc = 2
   export let showRangeSliders = true
+  export let showDivergence = true
 
   // Generate a plot with horizontal axis along z and vertical axis along y
   // where waist radius is mapped to the y axis
@@ -82,13 +83,39 @@
     return [pluslinesegs, neglinesegs]
   }
 
+  function calculateMaxY(waist: number, wavelength: number) {
+    const zrj = (Math.PI * waist * waist * n) / (wavelength / 1000)
+    let startY = waist * Math.sqrt(1 + (zstart / zrj) * (zstart / zrj))
+    let endY = waist * Math.sqrt(1 + (zend / zrj) * (zend / zrj))
+    maxY = Math.max(startY, endY)
+    maxY = setAxisLimits(0, maxY, zinc)[1] // round up to nearest logical chart scale
+    return maxY
+  }
+
   // generate grid lines
   // *****************************
   let gridLines = genGridLines(xoffset, gridWidth, gridHeight, 5)
   // *****************************
 
+  // slope = (g1 - g0) / (z1 - z0)
+  // g1 = gridWidth
+  // g0 = -gridWidth
+  // z1 = zend
+  // z0 = zstart
+  // slope of line to zZero
+  // (gz - g0) / (zZero - z0)
+
+  // gz = (zZero - z0) * (g1 - g0) / (z1 - z0) + g0
+  // gz = (0.0 - zstart) * (2 * gridWidth) / (zend - zstart) - gridWidth
+
+  let zZeroScaled = ((0.0 - zstart) * 2 * gridWidth) / (zend - zstart) - gridWidth
+  let slope = λ / (Math.PI * waistvalue * 1000)
+  let ybySlope = (slope * zend * gridHeight) / calculateMaxY(waistvalue, wavelvalue)
+  let slopeLines = [new Vector3(xoffset, 0, zZeroScaled), new Vector3(xoffset, ybySlope, gridWidth)]
+
   $: data = genLineSegs(waistvalue, wavelvalue)
   $: zwaist = ((0.0 - zstart) * 2 * gridWidth) / (zend - zstart) - gridWidth
+  $: theta = λ / (Math.PI * waistvalue * 1000)
 </script>
 
 <div class="wrapper">
@@ -258,6 +285,24 @@
         text={'Gaussian Beam Profile over Distance'}
         color={0x000000}
         fontSize={10}
+        anchorX={'left'}
+        anchorY={'bottom'}
+      />
+    </T.Mesh>
+
+    <T.Mesh visible={showDivergence}>
+      <T.Line
+        geometry={new BufferGeometry().setFromPoints(slopeLines)}
+        material={new LineDashedMaterial({ color: 0xff0000 })}
+      />
+    </T.Mesh>
+
+    <!-- Max z Distance Label -->
+    <T.Mesh position={[xoffset, 0, 30]} rotation={[0, -Math.PI / 2, 0.25]}>
+      <Text
+        text={'theta = ' + (theta * 1000).toFixed(2) + ' mrad'}
+        color={0x000000}
+        fontSize={8}
         anchorX={'left'}
         anchorY={'bottom'}
       />
