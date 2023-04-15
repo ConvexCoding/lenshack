@@ -12,8 +12,10 @@
   export let w0 = 0.5
   export let λ = 1.0
   export let n = 1
-  export let maxz = 2000
+  export let zstart = -2000
+  export let zend = 2000
   export let zinc = 2
+  export let showRangeSliders = true
 
   // Generate a plot with horizontal axis along z and vertical axis along y
   // where waist radius is mapped to the y axis
@@ -32,7 +34,7 @@
   // set constants
   // realize this could one statement but it's easier to read this way
   $: zr = (Math.PI * waistvalue * waistvalue * n) / wavelvalue
-  let maxY = w0 * Math.sqrt(1 + (maxz / zr) * (maxz / zr)) // max waist size needed for scale chart
+  let maxY = w0 * Math.sqrt(1 + (zend / zr) * (zend / zr)) // max waist size needed for scale chart
   maxY = setAxisLimits(0, maxY, zinc)[1] // round up to nearest logical chart scale
 
   // displayed chart in pixels
@@ -49,19 +51,21 @@
   const xoffset = -2
 
   function genLineSegs(waist: number, wavelength: number) {
-    pluslinesegs = new Float32Array((maxz / zinc + 1) * 3)
-    neglinesegs = new Float32Array((maxz / zinc + 1) * 3)
+    pluslinesegs = new Float32Array(((zend - zstart) / zinc + 1) * 3)
+    neglinesegs = new Float32Array(((zend - zstart) / zinc + 1) * 3)
 
     const z: number[] = []
     const w: number[] = []
 
     const zrj = (Math.PI * waist * waist * n) / (wavelength / 1000)
-    maxY = waist * Math.sqrt(1 + (maxz / zrj) * (maxz / zrj))
+    let startY = waist * Math.sqrt(1 + (zstart / zrj) * (zstart / zrj))
+    let endY = waist * Math.sqrt(1 + (zend / zrj) * (zend / zrj))
+    maxY = Math.max(startY, endY)
     maxY = setAxisLimits(0, maxY, zinc)[1] // round up to nearest logical chart scale
     scaleY0 = (waist * scaleY) / maxY / 2
 
-    for (let i = 0; i <= maxz; i += zinc) {
-      z.push((i * scaleZ) / maxz - scaleZ / 2)
+    for (let i = zstart; i <= zend; i += zinc) {
+      z.push(((i - zstart) * scaleZ) / (zend - zstart) - scaleZ / 2)
       const wz = waist * Math.sqrt(1 + (i / zrj) * (i / zrj))
       w.push((wz * scaleY) / 2 / maxY)
     }
@@ -84,42 +88,45 @@
   // *****************************
 
   $: data = genLineSegs(waistvalue, wavelvalue)
+  $: zwaist = ((0.0 - zstart) * 2 * gridWidth) / (zend - zstart) - gridWidth
 </script>
 
 <div class="wrapper">
-  <div class="absolute ml-24 mt-5 flex flex-row">
-    <div class="ml-5">
-      <RangeSlider
-        name="waist-slider"
-        accent="accent-surface-900 dark:accent-surface-300"
-        bind:value={waistvalue}
-        min={waistmin}
-        max={waistmax}
-        step={waisttic}
-      >
-        <div class="flex items-center justify-between">
-          <div class="text-sm font-bold">Waist(mm)</div>
-          <div class="text-sm font-bold">{waistvalue} / {waistmax}</div>
-        </div>
-      </RangeSlider>
-    </div>
+  {#if showRangeSliders}
+    <div class="absolute ml-24 mt-5 flex flex-row">
+      <div class="ml-5">
+        <RangeSlider
+          name="waist-slider"
+          accent="accent-surface-900 dark:accent-surface-300"
+          bind:value={waistvalue}
+          min={waistmin}
+          max={waistmax}
+          step={waisttic}
+        >
+          <div class="flex items-center justify-between">
+            <div class="text-sm font-bold">Waist(mm)</div>
+            <div class="text-sm font-bold">{waistvalue} / {waistmax}</div>
+          </div>
+        </RangeSlider>
+      </div>
 
-    <div class="ml-5">
-      <RangeSlider
-        name="wavelength-slider"
-        accent="accent-surface-900 dark:accent-surface-300"
-        bind:value={wavelvalue}
-        min={wavelmin}
-        max={wavelmax}
-        step={waveltic}
-      >
-        <div class="flex items-center justify-between">
-          <div class="text-sm font-bold">λ(μm)</div>
-          <div class="text-sm font-bold">{wavelvalue} / {wavelmax}</div>
-        </div>
-      </RangeSlider>
+      <div class="ml-5">
+        <RangeSlider
+          name="wavelength-slider"
+          accent="accent-surface-900 dark:accent-surface-300"
+          bind:value={wavelvalue}
+          min={wavelmin}
+          max={wavelmax}
+          step={waveltic}
+        >
+          <div class="flex items-center justify-between">
+            <div class="text-sm font-bold">λ(μm)</div>
+            <div class="text-sm font-bold">{wavelvalue} / {wavelmax}</div>
+          </div>
+        </RangeSlider>
+      </div>
     </div>
-  </div>
+  {/if}
 
   <Canvas>
     <!--
@@ -134,7 +141,7 @@
         ref.lookAt(0, 0, 0)
       }}
     >
-      <OrbitControls enableDamping enableZoom enablePan />
+      <OrbitControls enableZoom enableRotate={false} enablePan={false} />
     </T.PerspectiveCamera>
 
     <!-- Add Lights -->
@@ -202,20 +209,9 @@
     </T.Mesh>
 
     <!-- add axis label for Ymax at X0 -->
-    <T.Mesh position={[xoffset, scaleY0, -gridWidth]} rotation.y={-Math.PI / 2}>
+    <T.Mesh position={[xoffset, scaleY0, zwaist]} rotation.y={-Math.PI / 2}>
       <Text
         text={waistvalue.toFixed(2) + ' mm'}
-        color={0x000000}
-        fontSize={8}
-        anchorX={'center'}
-        anchorY={'bottom'}
-      />
-    </T.Mesh>
-
-    <!-- add axis label for (-)Ymin at X0 -->
-    <T.Mesh position={[xoffset, -scaleY0, -gridWidth]} rotation.y={-Math.PI / 2}>
-      <Text
-        text={'-' + waistvalue.toFixed(2) + ' mm'}
         color={0x000000}
         fontSize={8}
         anchorX={'center'}
@@ -223,15 +219,32 @@
       />
     </T.Mesh>
 
+    <!-- add axis label for (-)Ymin at X0 -->
+    <T.Mesh position={[xoffset, -scaleY0, zwaist]} rotation.y={-Math.PI / 2}>
+      <Text
+        text={'-' + waistvalue.toFixed(2) + ' mm'}
+        color={0x000000}
+        fontSize={8}
+        anchorX={'center'}
+        anchorY={'bottom'}
+      />
+    </T.Mesh>
+
     <!-- z0 Distance Label -->
     <T.Mesh position={[xoffset, 0, -gridWidth]} rotation.y={-Math.PI / 2}>
-      <Text text={'z = 0 mm'} color={0x000000} fontSize={8} anchorX={'left'} anchorY={'bottom'} />
+      <Text
+        text={'z = ' + zstart.toFixed(0) + ' mm -->'}
+        color={0x000000}
+        fontSize={8}
+        anchorX={'left'}
+        anchorY={'bottom'}
+      />
     </T.Mesh>
 
     <!-- Max z Distance Label -->
     <T.Mesh position={[xoffset, 0, gridWidth]} rotation.y={-Math.PI / 2}>
       <Text
-        text={'z = ' + maxz.toFixed(0) + ' mm -->'}
+        text={'z = ' + zend.toFixed(0) + ' mm -->'}
         color={0x000000}
         fontSize={8}
         anchorX={'right'}
@@ -240,7 +253,7 @@
     </T.Mesh>
 
     <!-- Title -->
-    <T.Mesh position={[xoffset, -gridHeight, -gridWidth]} rotation.y={-Math.PI / 2}>
+    <T.Mesh position={[xoffset, -gridHeight, -gridWidth]} rotation.y={-Math.PI / 2} visible={false}>
       <Text
         text={'Gaussian Beam Profile over Distance'}
         color={0x000000}

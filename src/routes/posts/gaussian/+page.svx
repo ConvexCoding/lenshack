@@ -3,8 +3,10 @@
   import { MirroredRepeatWrapping } from 'three'
   import RayleighEquationCard from './equations/RayleighEquationCard.svelte'
   import GaussEquationCard from './equations/GaussEquationCard.svelte'
+  import BeamDivergenceCard from './equations/BeamDivergenceCard.svelte'
   import GaussIntensityEquation from './equations/GaussIntensityEquation.svelte'
   import GaussProp from   './equations/GaussProp.svelte'
+  import GaussProp2 from   './equations/GaussProp2.svelte'
   import Rayleigh from './equations/Rayleigh.svelte'
   import GaussDistributionChart2D from './scenes/GaussDistributionChart2D.svelte'
   import GaussDistributionChart3D from './scenes/GaussDistributionChart3D.svelte'
@@ -21,7 +23,7 @@
 
 # **Gaussian Beams**
 
-### _How They Are Focused_
+### _Some Interesting Facts_
 
 Laser beams in general have been made popular to the general public by many of the science fiction movies of the past decades. In the real world one the most common types of laser beams is the Gaussian laser beam. Gaussian laser beams are a common tool in the laboratory and in industry. They are used in a variety of applications from eye surgery, laser drilling of circuit boards, and laser cutting of almost all know materials. Gaussian beam propagate (like all photons) in a straight line.
 
@@ -31,9 +33,14 @@ Although laser beams are commonly thought to be collimated light, this is not th
 
 <GaussProp />
 
+<p style="text-align: center;"> <strong> Equation 1 </strong></p>
+
+
 In this equation w(z) is the beam waist (or radius) at any given distance z - the distance the laser beam travels along it's optic axis. The value z<sub>r</sub> is the Rayleigh Range, which is a constant for a gaussian laser beam of wavelength, λ, and initial beam radius of w<sub>0</sub>. The equation for the Rayleigh Range constant is:
 
 <Rayleigh />
+
+<p style="text-align: center;"> <strong> Equation 2 </strong></p>
 
 <div class="flex gap-4">
   <RayleighEquationCard />
@@ -48,18 +55,50 @@ In this equation w(z) is the beam waist (or radius) at any given distance z - th
     </ol>
   </div>
 </div>
+<p style="text-align: center;"> <strong> or Equation 2 </strong></p>
 
-Using the two equations above one can predict how the gaussian beam diverges as it propagates away from the waist position through a medium with index of refraction, n. The next graph shows this divergence of a laser beam over the 1st 2 meters of it's life. Change the sliders for waist and wavelength to get a feeling for how these parameters change the beam propagation.
+Using the two equations above one can predict how the gaussian beam diverges as it propagates away from the waist position through a medium with index of refraction, n. The next graph shows this divergence of a laser beam over the 1st 2 meters of it's life. We can assuming that unless otherwise stated the transport medium for the beam is air with an approximate index of 1.0. Change the sliders for waist and wavelength to get a feeling for how these parameters change the beam propagation.
 
-
-<BeamProp2/>
-
+<BeamProp2 zstart={0} zend={2000} zinc={5}/>
+<p style="text-align: center;"> <strong> Graph 1: Gaussian Beam Propagation. </strong></p>
 
 <div class="wrapper">
   <Canvas>
     <BeamProp />
   </Canvas>
 </div>
+
+Inserting the Rayleigh Range equation (Equation 2) into Equation 1 produces a more informative version of the gaussian beam propagation equation.
+
+<GaussProp2 />
+<p style="text-align: center;"> <strong> Equation 3 </strong></p>
+
+### Beam Divergence
+
+Looking again at the beam propagation with distance along the Z-axis it is apparent that the beam <strong>slope</strong> or beam divergence is changing as it propagates away from the waist. At the waist the beam is collimated, i.e. the beam has zero divergence. As the beam moves awway from the waist the slope steadily increases until it reaches a maximum at large distances from the waist. Taking the first derivative of Equation 3 with respect to Z provides the slope of the beam at various points along the Z axis.
+
+<BeamProp2 w0={0.1} λ={1} zstart={-100} zend={100} zinc={1} showRangeSliders={false}/>
+<p style="text-align: center;"> <strong> Graph 2: Gaussian Beam Propagation. </strong></p>
+
+When the beam is very far from the waist of the laser beam (Z/Z<sub>r</sub>) the beam divergence becomes linear with a value of:
+
+<div class="flex gap-4">
+  <BeamDivergenceCard />
+
+  <div class="card variant-soft-primary p-4 text-sm">
+    <h6>Notes:</h6>
+    <ol class="list-inside list-disc">
+      <li>w0: begining beam waist or semi-diameter</li>
+      <li>λ: wavelength of light in units of μm</li>
+      <li>resulting slope angle in milliradians</li>
+    </ol>
+  </div>
+</div>
+<p style="text-align: center;"> <strong> Equation 4 </strong></p>
+
+The implications of Equation 4 are obvious. For large waist diameters the beam divergence is small, but contrary to common usage, the beam will still have some divergence. For beams that start their life small (for example single mode fiber laser beams) or beams that are focused to small waists, the far field beam divergence can be quite large. 
+
+### Focusing Power of Gaussian Beam
 
 The real power of a laser beam is realized when a laser beam is passed through a lens and focused to a small point. This focused beam can have an enormous intensity. Welding, cutting of thick steels, heat treating, and even drilling minute holes in circuit boards is accomplished with laser beams focused by lenses.
 
