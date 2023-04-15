@@ -2,7 +2,14 @@
   import { OrbitControls } from '@threlte/extras'
   import { T } from '@threlte/core'
   import { Text } from '@threlte/extras'
-  import { DoubleSide } from 'three'
+  import {
+    BufferGeometry,
+    DoubleSide,
+    LineBasicMaterial,
+    LineDashedMaterial,
+    Vector3,
+    Line,
+  } from 'three'
   import { grid2Quad, genLineSegment, setAxisLimits } from '$lib/mathUtils'
   import Coords from '$lib/Coords.svelte'
   import { Line2 } from 'three/examples/jsm/lines/Line2'
@@ -57,6 +64,32 @@
 
   // *****************************
 
+  // calculate line segs to mark gauss diameter
+  const re: number[] = []
+  const ie: number[] = []
+
+  re.push((-w0 * gridWidth) / (rmulti * w0))
+  re.push((w0 * gridWidth) / (rmulti * w0))
+
+  ie.push(i0 * 0.135335 * gridHeight)
+  ie.push(i0 * 0.135335 * gridHeight)
+
+  const numEPoints = re.length
+  const elinesegs = new Float32Array(numEPoints * 3) // each point has 3 coordinates (x, y, z)
+
+  const elines: Vector3[] = []
+  elines.push(new Vector3(xoffset, ie[0], re[0]))
+  elines.push(new Vector3(xoffset, ie[1], re[1]))
+  $: lgeo = new BufferGeometry().setFromPoints(elines)
+
+  let lgeoTextLoc = new Vector3(xoffset, ie[0], 0)
+
+  for (let i = 0; i < numEPoints; i++) {
+    elinesegs[i * 3] = xoffset // set x-coordinate to 0
+    elinesegs[i * 3 + 1] = ie[i] // set y-coordinate to intensity[i]
+    elinesegs[i * 3 + 2] = re[i] // set z-coordinate to r[i]
+  }
+
   // generate grid lines
   // *****************************
   let gridLines = grid2Quad(
@@ -69,6 +102,10 @@
   // *****************************
 
   $: lineSegGeometry = genLineSegment(pluslinesegs)
+  $: elinesegsgeo = genLineSegment(elinesegs)
+
+  let emats = new LineDashedMaterial({ color: 0xff0000 })
+  let line = new Line(elinesegsgeo, emats)
 </script>
 
 <!--
@@ -100,6 +137,11 @@
       geometry={lineSegGeometry}
       material={new LineMaterial({ color: 0x0000ff, linewidth: 0.005 })}
     />
+  </T.Mesh>
+
+  <!-- 1/e^2 marker line -->
+  <T.Mesh visible={true}>
+    <T.Line geometry={lgeo} material={emats} />
   </T.Mesh>
 
   <!-- background plane - in this case along Y-Z aaxis -->
@@ -193,6 +235,19 @@
       fontSize={8}
       anchorX={'center'}
       anchorY={'middle'}
+    />
+  </T.Mesh>
+
+  <T.Mesh
+    position={[xoffset, gridHeight / 2 + horizontalLabelHeight + i0 * 0.135335 * gridHeight, 0]}
+    rotation={[0, -Math.PI / 2, 0]}
+  >
+    <Text
+      text={'1/e^2 intensity'}
+      color={0xff0000}
+      fontSize={8}
+      anchorX={'center'}
+      anchorY={'bottom'}
     />
   </T.Mesh>
 </T.Group>

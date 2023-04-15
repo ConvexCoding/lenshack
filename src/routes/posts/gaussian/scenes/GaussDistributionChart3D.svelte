@@ -1,12 +1,14 @@
 <script lang="ts">
   import { OrbitControls } from '@threlte/extras'
   import { Canvas, T, useFrame } from '@threlte/core'
-  import { BufferAttribute, LatheGeometry, Vector3 } from 'three'
-  import { xyToVector } from '$lib/mathUtils'
+  import { BufferAttribute, DoubleSide, LatheGeometry, Vector3 } from 'three'
+  import { genLineSegment, xyToVector } from '$lib/mathUtils'
   import Coords from '$lib/Coords.svelte'
   import { Lut } from 'three/examples/jsm/math/Lut'
   import { generateLatheColors } from '$lib/mathUtils'
   import { RangeSlider } from '@skeletonlabs/skeleton'
+  import { Line2 } from 'three/examples/jsm/lines/Line2'
+  import { LineMaterial } from 'three/examples/jsm/lines/LineMaterial'
 
   export let w0 = 0.2
   export let i0 = 1
@@ -43,11 +45,11 @@
   const colorToGrid = false
   const yMaxColor = gridHeight
   let image: LatheGeometry
-  let ivalue = 0.5
+  let ivalue = 1
   let max = 1.0
   let waistvalue = w0
 
-  function updateAll(localIntensity: number, localWaist: number) {
+  function updateLathe(localIntensity: number, localWaist: number) {
     w0 = localWaist
     i0 = localIntensity
     r.length = 0
@@ -64,9 +66,36 @@
     return image
   }
 
-  const showCoords = false
+  function updateELine(localIntensity: number, localWaist: number) {
+    r.length = 0
+    intensity.length = 0
+    let x: number[] = []
+    let y: number[] = []
+    let epoint = localIntensity * 0.135335 * gridHeight
+    for (let angle = 0; angle <= 2 * Math.PI; angle += Math.PI / 50) {
+      const xpt = (localWaist * Math.cos(angle)) / 2
+      const ypt = (localWaist * Math.sin(angle)) / 2
+      x.push(xpt * gridWidth)
+      y.push(ypt * gridWidth)
+    }
+
+    const numPoints = x.length
+    const linesegs = new Float32Array(numPoints * 3) // each point has 3 coordinates (x, y, z)
+
+    for (let i = 0; i < numPoints; i++) {
+      linesegs[i * 3] = x[i] // set x-coordinate to 0
+      linesegs[i * 3 + 1] = epoint // set y-coordinate to intensity[i]
+      linesegs[i * 3 + 2] = y[i] // set z-coordinate to r[i]
+    }
+
+    return genLineSegment(linesegs)
+  }
+
+  const showCoords = true
   let rotation = 0
-  $: updatedImage = updateAll(ivalue, waistvalue)
+
+  $: updatedImage = updateLathe(ivalue, waistvalue)
+  $: updatedELine = updateELine(ivalue, waistvalue)
 </script>
 
 <div class="wrapper">
@@ -136,6 +165,25 @@
       let:ref
     >
       <T.MeshPhongMaterial vertexColors={true} shinness={100} opacity={0.8} transparent side={2} />
+    </T.Mesh>
+
+    <T.Mesh position={[0, -gridHeight / 4, 0]} visible={false}>
+      <T
+        is={Line2}
+        geometry={updatedELine}
+        material={new LineMaterial({ color: 0xff0000, linewidth: 0.03 })}
+      />
+    </T.Mesh>
+    <!--
+      constructor(radius?: number, segments?: number, thetaStart?: number, thetaLength?: number);
+-->
+    <T.Mesh
+      position={[0, ivalue * 0.135335 * gridHeight - gridHeight / 4, 0]}
+      visible={true}
+      rotation.x={Math.PI / 2}
+    >
+      <T.CircleGeometry args={[(waistvalue * gridWidth) / 2 + 5, 50]} />
+      <T.MeshPhongMaterial color={'red'} side={DoubleSide} />
     </T.Mesh>
   </Canvas>
 </div>

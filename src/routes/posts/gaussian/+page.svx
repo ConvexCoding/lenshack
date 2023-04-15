@@ -85,7 +85,7 @@ Here f is the focal length of the lens, D is the gaussian beam diameter (2 * w0)
 
 <img class="h-64 w-auto m-5" src="/gausswithlens.webp" alt={'dummy'} />
 
-In general a lens will perform a fourier transform on the input beam of light. The intensity distribution at focus will depend on the intensity distribution of the input light. So for a light beam with a uniform intensity, the intensity distribution at focus of a lens will have an Airy Disc distribution. One of the important aspects of a light beam with a gaussian distribution is that the fourier transform by a lens produces a gaussian distribution at focus. In fact the beam will have a gaussian distribution at all points along its path, assuming that any lens or mirror that the beam encounters is free of aberrations. The equation for the intensity distribution of a gaussian beam is:
+In general a lens will perform a fourier transform on the input beam of light. The intensity distribution at focus will depend on the intensity distribution of the input light. So for a light beam with a uniform intensity, the intensity distribution at focus of a lens will have an Airy Disc distribution. One of the important aspects of a light beam with a gaussian distribution is the fourier transform by a lens produces a gaussian distribution at focus. In fact the beam will have a gaussian distribution at all points along its path, assuming that any lens or mirror the beam encounters is free of aberrations. The equation for the intensity distribution of a gaussian beam is:
 
 <GaussIntensityEquation />
 
@@ -93,11 +93,11 @@ Here, I<sub>0</sub> is the peak intensity at the center of the beam, r is the ra
 
 <div class="wrapper">
   <Canvas>
-    <GaussDistributionChart2D w0={0.2} intensity={0.5}/>
+    <GaussDistributionChart2D w0={0.2} intensity={1}/>
   </Canvas>
 </div>
 
-<GaussDistributionChart3D w={0.2} i0={0.8}/>
+<GaussDistributionChart3D w={0.2} i0={1.0}/>
 
 <div class="wrapper">
   <Canvas>
