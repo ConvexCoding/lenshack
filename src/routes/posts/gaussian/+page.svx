@@ -77,10 +77,11 @@ Inserting the Rayleigh Range equation (Equation 2) into Equation 1 produces a mo
 
 Looking again at the beam propagation with distance along the Z-axis it is apparent that the beam <strong>slope</strong> or beam divergence is changing as it propagates away from the waist. At the waist the beam is collimated, i.e. the beam has zero divergence. As the beam moves awway from the waist the slope steadily increases until it reaches a maximum at large distances from the waist. Taking the first derivative of Equation 3 with respect to Z provides the slope of the beam at various points along the Z axis.
 
-<BeamProp2 w0={0.1} λ={1} zstart={-100} zend={100} zinc={1} showRangeSliders={false} showDivergence={true}/>
+<BeamProp2 w0={0.1} λ={1} zstart={-100} zend={100} zinc={1} 
+    showRangeSliders={false} showDivergence={true}/>
 <p style="text-align: center;"> <strong> Graph 2: Gaussian Beam Propagation. </strong></p>
 
-When the beam is very far from the waist of the laser beam (Z/Z<sub>r</sub>) the beam divergence becomes linear with a value of:
+When the beam is very far from the waist of the laser beam (Z >> Z<sub>r</sub>) the beam divergence becomes linear with a value of:
 
 <div class="flex gap-4">
   <BeamDivergenceCard />

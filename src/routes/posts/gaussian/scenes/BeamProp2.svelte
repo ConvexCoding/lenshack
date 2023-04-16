@@ -109,13 +109,27 @@
   // gz = (0.0 - zstart) * (2 * gridWidth) / (zend - zstart) - gridWidth
 
   let zZeroScaled = ((0.0 - zstart) * 2 * gridWidth) / (zend - zstart) - gridWidth
-  let slope = λ / (Math.PI * waistvalue * 1000)
+  let slope = wavelvalue / (Math.PI * waistvalue * 1000)
   let ybySlope = (slope * zend * gridHeight) / calculateMaxY(waistvalue, wavelvalue)
-  let slopeLines = [new Vector3(xoffset, 0, zZeroScaled), new Vector3(xoffset, ybySlope, gridWidth)]
 
   $: data = genLineSegs(waistvalue, wavelvalue)
   $: zwaist = ((0.0 - zstart) * 2 * gridWidth) / (zend - zstart) - gridWidth
-  $: theta = λ / (Math.PI * waistvalue * 1000)
+  $: theta = wavelvalue / (Math.PI * waistvalue * 1000)
+  $: slopeLines = [
+    new Vector3(xoffset, 0, ((0.0 - zstart) * 2 * gridWidth) / (zend - zstart) - gridWidth),
+    new Vector3(
+      xoffset,
+      ((wavelvalue / (Math.PI * waistvalue * 1000)) * zend * gridHeight) /
+        calculateMaxY(waistvalue, wavelvalue),
+      gridWidth
+    ),
+  ]
+
+  $: slopeTextRotation =
+    -((wavelvalue / (Math.PI * waistvalue * 1000)) * zend * gridHeight) /
+    calculateMaxY(waistvalue, wavelvalue) /
+    (gridWidth - ((0.0 - zstart) * 2 * gridWidth) / (zend - zstart) - gridWidth) /
+    2
 </script>
 
 <div class="wrapper">
@@ -298,9 +312,12 @@
     </T.Mesh>
 
     <!-- Max z Distance Label -->
-    <T.Mesh position={[xoffset, 0, 30]} rotation={[0, -Math.PI / 2, 0.25]}>
+    <T.Mesh
+      position={[xoffset, 0, zZeroScaled + 30]}
+      rotation={[0, -Math.PI / 2, slopeTextRotation]}
+    >
       <Text
-        text={'theta = ' + (theta * 1000).toFixed(2) + ' mrad'}
+        text={'divergence angle = ' + (theta * 1000).toFixed(2) + ' mrad'}
         color={0x000000}
         fontSize={8}
         anchorX={'left'}
