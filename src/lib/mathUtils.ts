@@ -2,6 +2,30 @@ import { Vector2, Vector3, BufferGeometry, BufferAttribute } from 'three'
 import { LineGeometry } from 'three/examples/jsm/lines/LineGeometry'
 import { Lut } from 'three/examples/jsm/math/Lut'
 
+export function toGrid(zpoint: number, scale: number[][]): number {
+    // g1 = gridWidth
+  // g0 = -gridWidth
+  // z1 = zend
+  // z0 = zstart
+  // (gpoint - g0) / (zpoint - z0) = (g1 - g0) / (z1 - z0)
+  // gpoint = (zpoint - z0) * (g1 - g0) / (z1 - z0) + g0
+  return (
+    (zpoint - scale[0][0]) * (scale[1][1] - scale[1][0]) / (scale[0][1] - scale[0][0]) + scale[1][0]
+  )
+}
+
+export function toWorld(gpoint: number, scale: number[][]): number {
+  // g1 = gridWidth
+  // g0 = -gridWidth
+  // z1 = zend
+  // z0 = zstart
+  // (gpoint - g0) / (zpoint - z0) = (g1 - g0) / (z1 - z0)
+  // zpoint = (gpoint - g0) * (z1 - z0) / (g1 - g0) + z0
+
+  return (
+    ((gpoint - scale[1][0]) * (scale[0][1] - scale[0][0])) / (scale[1][1] - scale[1][0]) + scale[0][0]
+  )
+}
 
 export function genLineGeometry(pts: Vector3[]): LineGeometry {
   const floatArray: Float32Array = Float32Array.from(pts.flatMap((v) => [v.x, v.y, v.z]))

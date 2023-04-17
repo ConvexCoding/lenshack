@@ -3,7 +3,7 @@
   import { Canvas, T } from '@threlte/core'
   import { Text } from '@threlte/extras'
   import { BufferGeometry, DoubleSide, LineDashedMaterial, Vector3 } from 'three'
-  import { genGridLines, genLineSegment, setAxisLimits } from '$lib/mathUtils'
+  import { genGridLines, genLineSegment, setAxisLimits, toGrid, toWorld } from '$lib/mathUtils'
   import Coords from '$lib/Coords.svelte'
   import { Line2 } from 'three/examples/jsm/lines/Line2'
   import { LineMaterial } from 'three/examples/jsm/lines/LineMaterial'
@@ -32,28 +32,31 @@
   let wavelmax = 12
   let waveltic = 0.5
 
-  // set constants
-  // realize this could one statement but it's easier to read this way
-  $: zr = (Math.PI * waistvalue * waistvalue * n) / wavelvalue
-  let maxY = w0 * Math.sqrt(1 + (zend / zr) * (zend / zr)) // max waist size needed for scale chart
-  maxY = setAxisLimits(0, maxY, zinc)[1] // round up to nearest logical chart scale
-
   // displayed chart in pixels
   const gridWidth = 200 // total grid width = 2 * gridWidth
   const gridHeight = 75 // total grid height = 2 * gridHeight
+
+  const zScale = [
+    [zstart, zend],
+    [-gridWidth, gridWidth],
+  ]
+
+  // set constants
+  // realize this could be one statement but it's easier to read this way
+  $: zr = (Math.PI * waistvalue * waistvalue * n) / wavelvalue
+  let maxY = w0 * Math.sqrt(1 + (zend / zr) * (zend / zr)) // max waist size needed for scale chart
+  maxY = setAxisLimits(0, maxY, zinc)[1] // round up to nearest logical chart scale
 
   // set scale constants for w and z
   let scaleZ = 2 * gridWidth
   let scaleY = 2 * gridHeight
   let scaleY0 = (w0 * scaleY) / maxY / 2
 
-  let pluslinesegs: Float32Array // each point has 3 coordinates (x, y, z)
-  let neglinesegs: Float32Array // each point has 3 coordinates (x, y, z)
   const xoffset = -2
 
   function genLineSegs(waist: number, wavelength: number) {
-    pluslinesegs = new Float32Array(((zend - zstart) / zinc + 1) * 3)
-    neglinesegs = new Float32Array(((zend - zstart) / zinc + 1) * 3)
+    let pluslinesegs = new Float32Array(((zend - zstart) / zinc + 1) * 3)
+    let neglinesegs = new Float32Array(((zend - zstart) / zinc + 1) * 3)
 
     const z: number[] = []
     const w: number[] = []
@@ -97,39 +100,40 @@
   let gridLines = genGridLines(xoffset, gridWidth, gridHeight, 5)
   // *****************************
 
-  // slope = (g1 - g0) / (z1 - z0)
-  // g1 = gridWidth
-  // g0 = -gridWidth
-  // z1 = zend
-  // z0 = zstart
-  // slope of line to zZero
-  // (gz - g0) / (zZero - z0)
-
-  // gz = (zZero - z0) * (g1 - g0) / (z1 - z0) + g0
-  // gz = (0.0 - zstart) * (2 * gridWidth) / (zend - zstart) - gridWidth
-
-  let zZeroScaled = ((0.0 - zstart) * 2 * gridWidth) / (zend - zstart) - gridWidth
-  let slope = wavelvalue / (Math.PI * waistvalue * 1000)
-  let ybySlope = (slope * zend * gridHeight) / calculateMaxY(waistvalue, wavelvalue)
-
+  // line data to plot beam trajectory
   $: data = genLineSegs(waistvalue, wavelvalue)
-  $: zwaist = ((0.0 - zstart) * 2 * gridWidth) / (zend - zstart) - gridWidth
+
+  // location of waist on grid in gridunits
+  $: zWaistGridUnits = toGrid(0, zScale)
+
+  // divergence angle theta in radians
   $: theta = wavelvalue / (Math.PI * waistvalue * 1000)
+
+  // line data to plot the far field divergence angle line
   $: slopeLines = [
-    new Vector3(xoffset, 0, ((0.0 - zstart) * 2 * gridWidth) / (zend - zstart) - gridWidth),
+    new Vector3(xoffset, 0, zWaistGridUnits),
     new Vector3(
       xoffset,
-      ((wavelvalue / (Math.PI * waistvalue * 1000)) * zend * gridHeight) /
-        calculateMaxY(waistvalue, wavelvalue),
+      (theta * zend * gridHeight) / calculateMaxY(waistvalue, wavelvalue),
       gridWidth
     ),
   ]
 
-  $: slopeTextRotation =
-    -((wavelvalue / (Math.PI * waistvalue * 1000)) * zend * gridHeight) /
+  // calculation of rotation for the divergence angle text
+  $: divAngleTextRotation =
+    (theta * zend * gridHeight) /
     calculateMaxY(waistvalue, wavelvalue) /
-    (gridWidth - ((0.0 - zstart) * 2 * gridWidth) / (zend - zstart) - gridWidth) /
+    (gridWidth - zWaistGridUnits) /
     2
+
+  const thetaLabelZOffset = 100
+
+  $: divAngleGridUnits =
+    (theta * zend * gridHeight) /
+    calculateMaxY(waistvalue, wavelvalue) /
+    (gridWidth - zWaistGridUnits)
+
+  $: divergAngleLabelYOffset = (thetaLabelZOffset * divAngleGridUnits) / 2
 </script>
 
 <div class="wrapper">
@@ -250,7 +254,7 @@
     </T.Mesh>
 
     <!-- add axis label for Ymax at X0 -->
-    <T.Mesh position={[xoffset, scaleY0, zwaist]} rotation.y={-Math.PI / 2}>
+    <T.Mesh position={[xoffset, scaleY0, zWaistGridUnits]} rotation.y={-Math.PI / 2}>
       <Text
         text={waistvalue.toFixed(2) + ' mm'}
         color={0x000000}
@@ -261,7 +265,7 @@
     </T.Mesh>
 
     <!-- add axis label for (-)Ymin at X0 -->
-    <T.Mesh position={[xoffset, -scaleY0, zwaist]} rotation.y={-Math.PI / 2}>
+    <T.Mesh position={[xoffset, -scaleY0, zWaistGridUnits]} rotation.y={-Math.PI / 2}>
       <Text
         text={'-' + waistvalue.toFixed(2) + ' mm'}
         color={0x000000}
@@ -311,17 +315,17 @@
       />
     </T.Mesh>
 
-    <!-- Max z Distance Label -->
+    <!-- Divergence angle Label -->
     <T.Mesh
-      position={[xoffset, 0, zZeroScaled + 30]}
-      rotation={[0, -Math.PI / 2, slopeTextRotation]}
+      position={[xoffset, divergAngleLabelYOffset, zWaistGridUnits + thetaLabelZOffset]}
+      rotation={[0, -Math.PI / 2, divAngleTextRotation]}
     >
       <Text
         text={'divergence angle = ' + (theta * 1000).toFixed(2) + ' mrad'}
         color={0x000000}
         fontSize={8}
-        anchorX={'left'}
-        anchorY={'bottom'}
+        anchorX={'center'}
+        anchorY={'middle'}
       />
     </T.Mesh>
   </Canvas>
