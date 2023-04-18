@@ -35,7 +35,7 @@
 
 <div class="card relative flex flex-1 justify-center gap-4 p-6 md:py-10 {equationTextSize}">
   <div class="flex items-center font-serif">
-    <span class:bg-green-300={debug} class="mr-3"> PD<sub>average</sub> = </span>
+    <span class:bg-green-300={debug} class="mr-3"> PD<sub>peak</sub> = </span>
 
     <div class="flex flex-col">
       <div class="flex justify-center gap-1.5">

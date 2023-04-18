@@ -1,6 +1,6 @@
 <script lang="ts">
   import { OrbitControls } from '@threlte/extras'
-  import { T } from '@threlte/core'
+  import { Canvas, T } from '@threlte/core'
   import { Text } from '@threlte/extras'
   import {
     BufferGeometry,
@@ -19,6 +19,10 @@
   export let i0 = 1
   export let gridWidth = 140
   export let gridHeight = 140
+  export let showESquared = true
+  export let showPeakPowerZone = false
+
+  let curveThickness = showPeakPowerZone ? 0.002 : 0.005
 
   // Generate a 2d plot of peak intensity versus radial distance (2 * w0)
   // where radial distance r is mapped to the z axis
@@ -69,18 +73,11 @@
   re.push((-w0 * gridWidth) / (rmulti * w0))
   re.push((w0 * gridWidth) / (rmulti * w0))
 
-  ie.push(i0 * 0.135335 * gridHeight)
-  ie.push(i0 * 0.135335 * gridHeight)
+  ie.push(i0 * 0.135335 * gridHeight + horizontalLabelHeight / 2 - gridHeight / 2)
+  ie.push(i0 * 0.135335 * gridHeight + horizontalLabelHeight / 2 - gridHeight / 2)
 
   const numEPoints = re.length
   const elinesegs = new Float32Array(numEPoints * 3) // each point has 3 coordinates (x, y, z)
-
-  const elines: Vector3[] = []
-  elines.push(new Vector3(xoffset, ie[0], re[0]))
-  elines.push(new Vector3(xoffset, ie[1], re[1]))
-  $: lgeo = new BufferGeometry().setFromPoints(elines)
-
-  let lgeoTextLoc = new Vector3(xoffset, ie[0], 0)
 
   for (let i = 0; i < numEPoints; i++) {
     elinesegs[i * 3] = xoffset // set x-coordinate to 0
@@ -99,153 +96,184 @@
   )
   // *****************************
 
-  $: lineSegGeometry = genLineSegment(pluslinesegs)
-  $: elinesegsgeo = genLineSegment(elinesegs)
+  // line segments for gauss curve
+  let lineSegGeometry = genLineSegment(pluslinesegs)
 
+  // line marker for e^-2 points
+  const elines: Vector3[] = []
+  elines.push(new Vector3(xoffset, ie[0], re[0]))
+  elines.push(new Vector3(xoffset, ie[1], re[1]))
+
+  let lgeo = new BufferGeometry().setFromPoints(elines)
   let emats = new LineDashedMaterial({ color: 0xff0000 })
-  let line = new Line(elinesegsgeo, emats)
+  let elineLabelHeight = ie[0]
 </script>
 
-<!--
-<Coords locXYZ={new Vector3(-40, 0, -scaleZ / 2 + 60)} />
--->
+<div class="wrapper">
+  <Canvas>
+    <!--
+    <Coords locXYZ={new Vector3(-40, 0, -scaleZ / 2 + 60)} />
+    -->
 
-<!-- Add Camera -->
-<T.PerspectiveCamera
-  makeDefault
-  position={[-200, 0, 0]}
-  on:create={({ ref }) => {
-    ref.lookAt(0, 0, 0)
-  }}
->
-  <OrbitControls enableDamping enableZoom enablePan />
-</T.PerspectiveCamera>
+    <!-- Add Camera -->
+    <T.PerspectiveCamera
+      makeDefault
+      position={[-200, 0, 0]}
+      on:create={({ ref }) => {
+        ref.lookAt(0, 0, 0)
+      }}
+    >
+      <OrbitControls enableDamping enableZoom enablePan />
+    </T.PerspectiveCamera>
 
-<!-- Add Lights -->
-<T.DirectionalLight position={[-100, 0, 0]} intensity={0.75} />
-<T.DirectionalLight position={[0, 100, 0]} intensity={0.2} />
-<T.DirectionalLight position={[0, -100, 0]} intensity={0.2} />
-<T.AmbientLight intensity={0.5} />
+    <!-- Add Lights -->
+    <T.DirectionalLight position={[-100, 0, 0]} intensity={0.75} />
+    <T.DirectionalLight position={[0, 100, 0]} intensity={0.2} />
+    <T.DirectionalLight position={[0, -100, 0]} intensity={0.2} />
+    <T.AmbientLight intensity={0.5} />
 
-<T.Group position.y={-gridHeight / 2 + horizontalLabelHeight / 2} visible={true}>
-  <!-- profile lines -->
-  <T.Mesh>
-    <T
-      is={Line2}
-      geometry={lineSegGeometry}
-      material={new LineMaterial({ color: 0x0000ff, linewidth: 0.005 })}
-    />
-  </T.Mesh>
+    <!-- profile lines -->
+    <T.Group position.y={-gridHeight / 2 + horizontalLabelHeight / 2} visible={true}>
+      <T.Mesh>
+        <T
+          is={Line2}
+          geometry={lineSegGeometry}
+          material={new LineMaterial({ color: 0x0000ff, linewidth: curveThickness })}
+        />
+      </T.Mesh>
 
-  <!-- 1/e^2 marker line -->
-  <T.Mesh visible={true}>
-    <T.Line geometry={lgeo} material={emats} />
-  </T.Mesh>
+      <!-- background plane - in this case along Y-Z aaxis -->
+      <T.Mesh position={[0, gridHeight / 2, 0]} rotation={[0, 0, 0]}>
+        <T.BoxGeometry args={[1, gridHeight + 10, gridWidth * 2 + 10]} />
+        <T.MeshStandardMaterial side={DoubleSide} color={'yellow'} transparent opacity={1} />
+      </T.Mesh>
 
-  <!-- background plane - in this case along Y-Z aaxis -->
-  <T.Mesh position={[0, gridHeight / 2, 0]} rotation={[0, 0, 0]}>
-    <T.BoxGeometry args={[1, gridHeight + 10, gridWidth * 2 + 10]} />
-    <T.MeshStandardMaterial side={DoubleSide} color={'yellow'} transparent opacity={1} />
-  </T.Mesh>
+      <!-- add background grid lines -->
+      <T.Mesh>
+        {#each gridLines as line}
+          <T
+            is={Line2}
+            geometry={genLineSegment(line)}
+            material={new LineMaterial({ color: 0x00aaff, linewidth: 0.001 })}
+          />
+        {/each}
+        <T
+          is={Line2}
+          geometry={genLineSegment(gridLines[0])}
+          material={new LineMaterial({ color: 0x000000, linewidth: 0.004 })}
+        />
+        <T
+          is={Line2}
+          geometry={genLineSegment(gridLines[1])}
+          material={new LineMaterial({ color: 0x000000, linewidth: 0.0015 })}
+        />
+      </T.Mesh>
 
-  <!-- add background grid lines -->
-  <T.Mesh>
-    {#each gridLines as line}
-      <T
-        is={Line2}
-        geometry={genLineSegment(line)}
-        material={new LineMaterial({ color: 0x00aaff, linewidth: 0.001 })}
-      />
-    {/each}
-    <T
-      is={Line2}
-      geometry={genLineSegment(gridLines[0])}
-      material={new LineMaterial({ color: 0x000000, linewidth: 0.004 })}
-    />
-    <T
-      is={Line2}
-      geometry={genLineSegment(gridLines[1])}
-      material={new LineMaterial({ color: 0x000000, linewidth: 0.0015 })}
-    />
-  </T.Mesh>
+      <!-- add axis label for Ymax at Xmax -->
+      <T.Mesh position={[xoffset, gridHeight, gridWidth]} rotation={[0, -Math.PI / 2, 0]}>
+        <Text
+          text={i0.toFixed(2) + ' W/mm^2'}
+          color={0x000000}
+          fontSize={8}
+          anchorX={'right'}
+          anchorY={'top'}
+        />
+      </T.Mesh>
 
-  <!-- add axis label for Ymax at Xmax -->
-  <T.Mesh position={[xoffset, gridHeight, gridWidth]} rotation={[0, -Math.PI / 2, 0]}>
-    <Text
-      text={i0.toFixed(2) + ' W/mm^2'}
-      color={0x000000}
-      fontSize={8}
-      anchorX={'right'}
-      anchorY={'top'}
-    />
-  </T.Mesh>
+      <!-- add axis label for Ymax at X0 -->
+      <T.Mesh position={[xoffset, scaleY0, -gridWidth]} rotation.y={-Math.PI / 2}>
+        <Text
+          text={'<-- -' + maxR.toFixed(3) + ' mm'}
+          color={0x000000}
+          fontSize={8}
+          anchorX={'left'}
+          anchorY={'bottom'}
+        />
+      </T.Mesh>
 
-  <!-- add axis label for Ymax at X0 -->
-  <T.Mesh position={[xoffset, scaleY0, -gridWidth]} rotation.y={-Math.PI / 2}>
-    <Text
-      text={'<-- -' + maxR.toFixed(3) + ' mm'}
-      color={0x000000}
-      fontSize={8}
-      anchorX={'left'}
-      anchorY={'bottom'}
-    />
-  </T.Mesh>
+      <!-- Max z Distance Label -->
+      <T.Mesh position={[xoffset, 0, gridWidth]} rotation.y={-Math.PI / 2}>
+        <Text
+          text={maxR.toFixed(3) + ' mm -->'}
+          color={0x000000}
+          fontSize={8}
+          anchorX={'right'}
+          anchorY={'bottom'}
+        />
+      </T.Mesh>
 
-  <!-- Max z Distance Label -->
-  <T.Mesh position={[xoffset, 0, gridWidth]} rotation.y={-Math.PI / 2}>
-    <Text
-      text={maxR.toFixed(3) + ' mm -->'}
-      color={0x000000}
-      fontSize={8}
-      anchorX={'right'}
-      anchorY={'bottom'}
-    />
-  </T.Mesh>
+      <!-- Title -->
+      <T.Mesh position={[xoffset, gridHeight, -gridWidth]} rotation.y={-Math.PI / 2}>
+        <Text
+          text={'Intensity at Focus'}
+          color={0x000000}
+          fontSize={10}
+          anchorX={'left'}
+          anchorY={'top'}
+        />
+      </T.Mesh>
+    </T.Group>
 
-  <!-- Title -->
-  <T.Mesh position={[xoffset, gridHeight, -gridWidth]} rotation.y={-Math.PI / 2}>
-    <Text
-      text={'Intensity at Focus'}
-      color={0x000000}
-      fontSize={10}
-      anchorX={'left'}
-      anchorY={'top'}
-    />
-  </T.Mesh>
-</T.Group>
+    <T.Group position.y={-gridHeight - 5}>
+      <!-- background plane - in this case along Y-Z aaxis -->
+      <T.Mesh position={[0, gridHeight / 2, 0]} rotation={[0, 0, 0]}>
+        <T.BoxGeometry args={[1, horizontalLabelHeight, gridWidth * 2 + 10]} />
+        <T.MeshStandardMaterial side={DoubleSide} color={'yellow'} transparent opacity={1} />
+      </T.Mesh>
 
-<T.Group position.y={-gridHeight - 5}>
-  <!-- background plane - in this case along Y-Z aaxis -->
-  <T.Mesh position={[0, gridHeight / 2, 0]} rotation={[0, 0, 0]}>
-    <T.BoxGeometry args={[1, horizontalLabelHeight, gridWidth * 2 + 10]} />
-    <T.MeshStandardMaterial side={DoubleSide} color={'yellow'} transparent opacity={1} />
-  </T.Mesh>
+      <!-- add axis label for Ymax at Xmax -->
+      <T.Mesh position={[xoffset, gridHeight / 2 + 5, 0]} rotation={[0, -Math.PI / 2, 0]}>
+        <Text text={'0.0'} color={0x000000} fontSize={8} anchorX={'center'} anchorY={'middle'} />
+      </T.Mesh>
 
-  <!-- add axis label for Ymax at Xmax -->
-  <T.Mesh position={[xoffset, gridHeight / 2 + 5, 0]} rotation={[0, -Math.PI / 2, 0]}>
-    <Text text={'0.0'} color={0x000000} fontSize={8} anchorX={'center'} anchorY={'middle'} />
-  </T.Mesh>
+      <T.Mesh
+        position={[xoffset, gridHeight / 2 + 5, gridWidth / 2]}
+        rotation={[0, -Math.PI / 2, 0]}
+      >
+        <Text
+          text={'radial distance -->'}
+          color={0x000000}
+          fontSize={8}
+          anchorX={'center'}
+          anchorY={'middle'}
+        />
+      </T.Mesh>
+    </T.Group>
 
-  <T.Mesh position={[xoffset, gridHeight / 2 + 5, gridWidth / 2]} rotation={[0, -Math.PI / 2, 0]}>
-    <Text
-      text={'radial distance -->'}
-      color={0x000000}
-      fontSize={8}
-      anchorX={'center'}
-      anchorY={'middle'}
-    />
-  </T.Mesh>
+    <!-- Group for central peak power density -->
+    <T.Group visible={showPeakPowerZone}>
+      <T.Mesh position={[xoffset * 5, horizontalLabelHeight / 2, 0]}>
+        <T.BoxGeometry args={[0.1, gridHeight - horizontalLabelHeight / 2, 4]} />
+        <T.MeshStandardMaterial side={DoubleSide} color={'red'} transparent opacity={1} />
+      </T.Mesh>
 
-  <T.Mesh
-    position={[xoffset, gridHeight / 2 + horizontalLabelHeight + i0 * 0.135335 * gridHeight, 0]}
-    rotation={[0, -Math.PI / 2, 0]}
-  >
-    <Text
-      text={'1/e^2 intensity'}
-      color={0xff0000}
-      fontSize={8}
-      anchorX={'center'}
-      anchorY={'bottom'}
-    />
-  </T.Mesh>
-</T.Group>
+      <T.Mesh position={[xoffset, 0, 0]} rotation={[0, -Math.PI / 2, 0]}>
+        <Text
+          text={'  <---- peak power density = 2 x average power density'}
+          color={0x000000}
+          fontSize={8}
+          anchorX={'left'}
+          anchorY={'middle'}
+        />
+      </T.Mesh>
+    </T.Group>
+
+    <!-- Group for 1/e^2 marker line & label -->
+    <T.Group visible={showESquared}>
+      <T.Mesh>
+        <T.Line geometry={lgeo} material={emats} />
+      </T.Mesh>
+
+      <!--gridHeight / 2 + horizontalLabelHeight + i0 * 0.135335 * gridHeight-->
+      <T.Mesh position={[xoffset, elineLabelHeight, 0]} rotation={[0, -Math.PI / 2, 0]}>
+        <Text
+          text={'1/e^2 intensity'}
+          color={0xff0000}
+          fontSize={8}
+          anchorX={'center'}
+          anchorY={'bottom'}
+        />
+      </T.Mesh>
+    </T.Group>
+  </Canvas>
+</div>

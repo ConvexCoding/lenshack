@@ -149,14 +149,12 @@ In general a lens will perform a fourier transform on the input beam of light. T
 
 Here, I<sub>0</sub> is the peak intensity at the center of the beam, r is the radial distance from the center of the beam, and w<sub>0</sub> is the gaussian waist of the beam. The plot below shows the intensity distribution for a beam with a waist of 0.2 mm. In this plot we have normalized the peak intensity (I<sub>0</sub>) to 1.0.
 
-<div class="wrapper">
-  <Canvas>
-    <GaussDistributionChart2D w0={0.2} intensity={1}/>
-  </Canvas>
-</div>
+
+<GaussDistributionChart2D w0={0.2} intensity={1}/>
+
 <p style="text-align: center;"> <strong> Figure {fignum++} </strong></p>
 
-<GaussDistributionChart3D w={0.2} i0={1.0}/>
+<GaussDistributionChart3D w={0.2} i0={1.0} showESquared={true}/>
 <p style="text-align: center;"> <strong> Figure {fignum++} </strong></p>
 
 Most of the time it is convenient to calculate the average laser power density over the main beam area. This is often the case when using a focused laser beam to do some type of work, such as drilling holes in circuit boards or welding car frames. Since the profile of a gaussain laser beam is, well, gaussian, the power density is obviously not uniform. However, it is possible calculate the average over the central area of the beam. The _average_ power density (PD<sub>average</sub>) of a gaussian laser beam is given by:
@@ -195,11 +193,8 @@ Average power calculations are useful and depending on the type of laser operati
 
 This is just the power density that occurs in the center of the gaussian beam.
 
-<div class="wrapper">
-  <Canvas>
-    <GaussDistributionChart2D w0={0.2} intensity={1}/>
-  </Canvas>
-</div>
+<GaussDistributionChart2D w0={0.2} intensity={1} gridWidth={200} showESquared={false} showPeakPowerZone={true}/>
+
 <p style="text-align: center;"> <strong> Figure {fignum++} </strong></p>
 
 <div class="wrapper">
