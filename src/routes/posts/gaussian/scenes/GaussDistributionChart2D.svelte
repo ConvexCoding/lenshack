@@ -17,6 +17,8 @@
 
   export let w0 = 0.2
   export let i0 = 1
+  export let gridWidth = 140
+  export let gridHeight = 140
 
   // Generate a 2d plot of peak intensity versus radial distance (2 * w0)
   // where radial distance r is mapped to the z axis
@@ -35,10 +37,6 @@
   let maxY = i0
   let minY = 0
   let maxR = rmulti * w0
-
-  // displayed chart in pixels
-  const gridWidth = 140 // total grid width = 2 * gridWidth
-  const gridHeight = 140 // total grid height = 2 * gridHeight
   const horizontalLabelHeight = 10
 
   // set scale constants for w and z

@@ -20,6 +20,7 @@
   import Form from './scenes/Form.svelte'
   import AtestCanvas from './scenes/AtestCanvas.svelte'
   import AveragePowerDensityCard from './equations/AveragePowerDensityCard.svelte'
+  import PeakPowerDensityCard from './equations/PeakPowerDensityCard.svelte'
 
   let fignum = 1
   let equnum = 1
@@ -158,7 +159,7 @@ Here, I<sub>0</sub> is the peak intensity at the center of the beam, r is the ra
 <GaussDistributionChart3D w={0.2} i0={1.0}/>
 <p style="text-align: center;"> <strong> Figure {fignum++} </strong></p>
 
-The _average_ power density (PD<sub>average</sub>) of a gaussian laser beam is given by:
+Most of the time it is convenient to calculate the average laser power density over the main beam area. This is often the case when using a focused laser beam to do some type of work, such as drilling holes in circuit boards or welding car frames. Since the profile of a gaussain laser beam is, well, gaussian, the power density is obviously not uniform. However, it is possible calculate the average over the central area of the beam. The _average_ power density (PD<sub>average</sub>) of a gaussian laser beam is given by:
 
 <div class="flex gap-4">
   <AveragePowerDensityCard />
@@ -174,6 +175,32 @@ The _average_ power density (PD<sub>average</sub>) of a gaussian laser beam is g
 </div>
 
 <p style="text-align: center;"> <strong> Equation {equnum++} </strong></p>
+
+Average power calculations are useful and depending on the type of laser operation they are helpful in deciding how to focus the beam and get work done. But in some cases, the laser beam is focused on materials that can be quite sensitive to peak power densities. In this case it is more important to know the peak power density of the beam which occurs in the very center. The peak power density is given by:
+
+<div class="flex gap-4">
+  <PeakPowerDensityCard />
+
+  <div class="card variant-soft-primary p-4 text-sm">
+    <h6>Notes:</h6>
+    <ol class="list-inside list-disc">
+      <li>P0: total laser power in Watts</li>
+      <li>r: gaussian beam radius at 1/e² pwr pts</li>
+      <li>resulting units will be watts/mm<sup>2</sup></li>
+    </ol>
+  </div>
+</div>
+
+<p style="text-align: center;"> <strong> Equation {equnum++} </strong></p>
+
+This is just the power density that occurs in the center of the gaussian beam.
+
+<div class="wrapper">
+  <Canvas>
+    <GaussDistributionChart2D w0={0.2} intensity={1}/>
+  </Canvas>
+</div>
+<p style="text-align: center;"> <strong> Figure {fignum++} </strong></p>
 
 <div class="wrapper">
   <Canvas>

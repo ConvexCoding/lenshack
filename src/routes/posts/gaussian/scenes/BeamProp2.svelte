@@ -212,7 +212,7 @@
     <!-- background plane - in this case along Y-Z aaxis -->
     <T.Mesh position={[0, 0, 0]} rotation={[0, 0, 0]} visible={true}>
       <T.BoxGeometry args={[1, scaleY + 20, scaleZ + 20]} />
-      <T.MeshStandardMaterial side={DoubleSide} color={'lightgray'} transparent opacity={1} />
+      <T.MeshStandardMaterial side={DoubleSide} color={'yellow'} transparent opacity={1} />
     </T.Mesh>
 
     <!-- add background grid lines -->
