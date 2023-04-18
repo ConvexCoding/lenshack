@@ -210,9 +210,9 @@
     </T.Mesh>
 
     <!-- background plane - in this case along Y-Z aaxis -->
-    <T.Mesh position={[0, 0, 0]} rotation={[0, 0, 0]}>
+    <T.Mesh position={[0, 0, 0]} rotation={[0, 0, 0]} visible={true}>
       <T.BoxGeometry args={[1, scaleY + 20, scaleZ + 20]} />
-      <T.MeshStandardMaterial side={DoubleSide} color={'yellow'} transparent opacity={1} />
+      <T.MeshStandardMaterial side={DoubleSide} color={'lightgray'} transparent opacity={1} />
     </T.Mesh>
 
     <!-- add background grid lines -->
@@ -319,6 +319,7 @@
     <T.Mesh
       position={[xoffset, divergAngleLabelYOffset, zWaistGridUnits + thetaLabelZOffset]}
       rotation={[0, -Math.PI / 2, divAngleTextRotation]}
+      visible={showDivergence}
     >
       <Text
         text={'divergence angle = ' + (theta * 1000).toFixed(2) + ' mrad'}
