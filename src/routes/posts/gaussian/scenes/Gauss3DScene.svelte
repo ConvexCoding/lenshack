@@ -9,10 +9,11 @@
   import { RangeSlider } from '@skeletonlabs/skeleton'
   import { Line2 } from 'three/examples/jsm/lines/Line2'
   import { LineMaterial } from 'three/examples/jsm/lines/LineMaterial'
-  import Gauss3DScene from './Gauss3DScene.svelte'
 
-  export let w0 = 0.5
-  export let i0 = 1
+  export let waistvalue = 0.2
+  export let ivalue = 1.0
+  let w0 = waistvalue
+  let i0 = ivalue
 
   // Generate a 2d plot of peak intensity versus radial distance (2 * w0)
   // where radial distance r is mapped to the z axis
@@ -46,9 +47,7 @@
   const colorToGrid = false
   const yMaxColor = gridHeight
   let image: LatheGeometry
-  let ivalue = 1
   let max = 1.0
-  let waistvalue = w0
 
   function updateLathe(localIntensity: number, localWaist: number) {
     w0 = localWaist
@@ -94,51 +93,60 @@
 
   const showCoords = true
   let rotation = 0
+  useFrame((state, delta) => {
+    rotation += delta / 2
+  })
 
   $: updatedImage = updateLathe(ivalue, waistvalue)
   $: updatedELine = updateELine(ivalue, waistvalue)
 </script>
 
-<div class="wrapper">
-  <div class="absolute flex w-1/5 flex-col">
-    <div class="ml-5">
-      <RangeSlider
-        name="intensity-slider"
-        accent="accent-surface-900 dark:accent-surface-300"
-        bind:value={ivalue}
-        min={0}
-        max={1}
-        step={0.01}
-        ticked={true}
-        on:change{updateIntensity(ivalue)}
-      >
-        <div class="flex items-center justify-between">
-          <div class="text-sm font-bold">Peak Intensity</div>
-          <div class="text-sm font-bold">{ivalue} / {max}</div>
-        </div>
-      </RangeSlider>
-    </div>
+{#if showCoords}
+  <Coords locXYZ={new Vector3(0, 0, -gridHeight / 2 - 60)} />
+{/if}
 
-    <div class="ml-5">
-      <RangeSlider
-        name="waist-slider"
-        accent="accent-surface-900 dark:accent-surface-300"
-        bind:value={waistvalue}
-        min={0}
-        max={1}
-        step={0.01}
-        on:change{updateWaist(waistvalue)}
-        ticked
-      >
-        <div class="flex items-center justify-between">
-          <div class="text-sm font-bold">Waist Radius</div>
-          <div class="text-sm font-bold">{waistvalue} / {max}</div>
-        </div>
-      </RangeSlider>
-    </div>
-  </div>
+<T.PerspectiveCamera
+  makeDefault
+  position={[-200, 10, -0]}
+  on:create={({ ref }) => {
+    ref.lookAt(0, 0, 0)
+  }}
+>
+  <OrbitControls enableDamping enableZoom enablePan />
+</T.PerspectiveCamera>
 
-  <Canvas>
-    <Gauss3DScene {waistvalue} {ivalue} />
-  </Canvas>
-</div>
+<T.DirectionalLight position={[-100, 0, 0]} intensity={0.75} />
+<T.DirectionalLight position={[0, 100, 0]} intensity={0.2} />
+<T.DirectionalLight position={[0, -100, 0]} intensity={0.2} />
+<T.AmbientLight intensity={0.5} />
+
+<T.Group rotation.y={rotation}>
+  <T.Mesh
+    geometry={updatedImage}
+    position={[0, -gridWidth / 4, 0]}
+    rotation={[0, rotation, 0]}
+    castShadow={true}
+    let:ref
+  >
+    <T.MeshPhongMaterial vertexColors={true} shinness={100} opacity={0.8} transparent side={2} />
+  </T.Mesh>
+
+  <T.Mesh position={[0, -gridHeight / 4, 0]} visible={false}>
+    <T
+      is={Line2}
+      geometry={updatedELine}
+      material={new LineMaterial({ color: 0xff0000, linewidth: 0.03 })}
+    />
+  </T.Mesh>
+  <!--
+      constructor(radius?: number, segments?: number, thetaStart?: number, thetaLength?: number);
+-->
+  <T.Mesh
+    position={[0, ivalue * 0.135335 * gridHeight - gridHeight / 4, 0]}
+    visible={true}
+    rotation.x={Math.PI / 2}
+  >
+    <T.CircleGeometry args={[(waistvalue * gridWidth) / 2 + 5, 50]} />
+    <T.MeshPhongMaterial color={'red'} side={DoubleSide} />
+  </T.Mesh>
+</T.Group>
