@@ -35,8 +35,8 @@
 
 <div class="card relative flex flex-1 justify-center gap-4 p-6 md:py-10 {equationTextSize}">
   <div class="flex items-center font-serif">
-    <span class:bg-green-300={debug} class="mr-3"> z </span>
-    <span class="relative right-2.5 top-1.5"> r </span>
+    <span class:bg-green-300={debug} class="mr-3"> θ </span>
+    <span class="relative right-2.5 top-1.5 text-sm"> far field </span>
     <span> = </span>
     <span />
     <div class="flex flex-col">

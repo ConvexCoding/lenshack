@@ -6,31 +6,31 @@
   import { CatmullRomCurve3 } from 'three'
   import { OrbitControls } from '@threlte/extras'
 
-  export let showCoords = true
+  export let showCoords = false
 
   let spiral: Vector3[] = []
   let x = 0
   let r = -10
   let extension = 30
-  spiral.push(new Vector3(30, r, 0))
+  spiral.push(new Vector3(15, r, 0))
   for (let i = 0; i <= Math.PI * 2 * 3; i += Math.PI / 6) {
     x += 0.25
     spiral.push(new Vector3(r * Math.sin(i), r * Math.cos(i), x))
   }
-  spiral.push(new Vector3(-15, r, x))
+  spiral.push(new Vector3(-30, r, x))
 
   let scalex = 1
   let scaley = 0.6
 
   let nozzle: THREE.Vector2[] = []
   nozzle.push(new THREE.Vector2(scaley * 0, scalex * 0))
-  nozzle.push(new THREE.Vector2(scaley * 1, scalex * 0))
-  nozzle.push(new THREE.Vector2(scaley * 1.5, scalex * 4))
-  nozzle.push(new THREE.Vector2(scaley * 3, scalex * 4))
-  nozzle.push(new THREE.Vector2(scaley * 3, scalex * 6))
-  nozzle.push(new THREE.Vector2(scaley * 0.5, scalex * 6))
-  nozzle.push(new THREE.Vector2(scaley * 0.5, scalex * 8))
-  nozzle.push(new THREE.Vector2(scaley * 0, scalex * 8))
+  nozzle.push(new THREE.Vector2(scaley * 0.75, scalex * 0))
+  nozzle.push(new THREE.Vector2(scaley * 1, scalex * 2))
+  nozzle.push(new THREE.Vector2(scaley * 2, scalex * 2))
+  nozzle.push(new THREE.Vector2(scaley * 2, scalex * 4))
+  nozzle.push(new THREE.Vector2(scaley * 0.6, scalex * 4))
+  nozzle.push(new THREE.Vector2(scaley * 0.6, scalex * 6))
+  nozzle.push(new THREE.Vector2(scaley * 0, scalex * 6))
 
   let path = new CatmullRomCurve3(spiral)
 
@@ -48,7 +48,7 @@
 
     <T.PerspectiveCamera
       makeDefault
-      position={[-40, 20, 60]}
+      position={[20, 10, -35]}
       on:create={({ ref }) => {
         ref.lookAt(0, 0, 0)
       }}
@@ -94,7 +94,7 @@
       position={[spiral[0].x, spiral[0].y, spiral[0].z]}
       rotation.z={-Math.PI / 2}
     >
-      <T.MeshPhongMaterial color={'red'} />
+      <T.MeshPhongMaterial color={'lightblue'} />
     </T.Mesh>
   </Canvas>
 </div>

@@ -49,10 +49,6 @@ Although laser beams are commonly thought to be collimated light, this is not th
 
 In this equation w(z) is the beam waist (or radius) at any given distance z - the distance the laser beam travels along it's optic axis. The value z<sub>r</sub> is the Rayleigh Range, which is a constant for a gaussian laser beam of wavelength, λ, and initial beam radius of w<sub>0</sub>. The equation for the Rayleigh Range constant is:
 
-<Rayleigh />
-
-<p style="text-align: center;"> <strong> Equation {equnum++} </strong></p>
-
 <div class="flex gap-4">
   <RayleighEquationCard />
 
@@ -66,7 +62,7 @@ In this equation w(z) is the beam waist (or radius) at any given distance z - th
     </ol>
   </div>
 </div>
-<p style="text-align: center;"> <strong> or Equation {equnum++} </strong></p>
+<p style="text-align: center;"> <strong> Equation {equnum++} </strong></p>
 
 Using the two equations above one can predict how the gaussian beam diverges as it propagates away from the waist position through a medium with index of refraction, n. The next graph shows this divergence of a laser beam over the 1st 2 meters of it's life. We can assuming that unless otherwise stated the transport medium for the beam is air with an approximate index of 1.0. Change the sliders for waist and wavelength to get a feeling for how these parameters change the beam propagation.
 
