@@ -16,6 +16,7 @@
   import Scene3 from './scenes/Scene3.svelte'
   import BeamProp from './scenes/BeamProp.svelte'
   import BeamProp2 from './scenes/BeamProp2.svelte'
+  import BeamProp3 from './scenes/BeamProp3.svelte'
   import { RangeSlider, SlideToggle } from '@skeletonlabs/skeleton'
   import Form from './scenes/Form.svelte'
   import AtestCanvas from './scenes/AtestCanvas.svelte'
@@ -69,6 +70,9 @@ Using the two equations above one can predict how the gaussian beam diverges as 
 <BeamProp2 zstart={0} zend={2000} zinc={5} showDivergence={false}/>
 <p style="text-align: center;"> <strong> Graph 1: Gaussian Beam Propagation. </strong></p>
 
+<BeamProp3 zstart={0} zend={1000} zinc={5} showDivergence={false} showRangeSliders={false}/>
+<p style="text-align: center;"> <strong> Graph 2: Definition of Rayleigh Length. </strong></p>
+
 <div class="wrapper">
   <Canvas>
     <BeamProp />
@@ -87,7 +91,7 @@ Looking again at the beam propagation with distance along the Z-axis it is appar
 
 <BeamProp2 w0={0.1} λ={1} zstart={-100} zend={100} zinc={1} 
     showRangeSliders={false} showDivergence={true}/>
-<p style="text-align: center;"> <strong> Graph 2: Gaussian Beam Propagation. </strong></p>
+<p style="text-align: center;"> <strong> Graph 3: Gaussian Beam Propagation. </strong></p>
 
 When the beam is very far from the waist of the laser beam (Z >> Z<sub>r</sub>) the beam divergence becomes linear with a value of:
 
