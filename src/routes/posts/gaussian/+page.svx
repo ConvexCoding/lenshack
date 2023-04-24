@@ -5,8 +5,8 @@
   import GaussEquationCard from './equations/GaussEquationCard.svelte'
   import BeamDivergenceCard from './equations/BeamDivergenceCard.svelte'
   import GaussIntensityEquation from './equations/GaussIntensityEquation.svelte'
-  import GaussProp from   './equations/GaussProp.svelte'
-  import GaussProp2 from   './equations/GaussProp2.svelte'
+  import GaussPropShortCard from   './equations/GaussPropShortCard.svelte'
+  import GaussPropFullCard from   './equations/GaussPropFullCard.svelte'
   import Rayleigh from './equations/Rayleigh.svelte'
   import GaussDistributionChart2D from './scenes/GaussDistributionChart2D.svelte'
   import GaussDistributionChart3D from './scenes/GaussDistributionChart3D.svelte'
@@ -28,9 +28,9 @@
 
 </script>
 
-# **Gaussian Beams**
+# **Gaussian Laser Beams**
 
-### _Some Interesting Facts_
+### _Some Interesting Facts & Equations_
 
 <AtestCanvas/>
 <p style="text-align: center;"> <strong> Figure Test </strong></p>
@@ -41,10 +41,22 @@ Laser beams in general have been made popular to the general public by many of t
 
 ### Beam Propagation
 
-Although laser beams are commonly thought to be collimated light, this is not the case. The beams propagate according to the following equation:
+Although laser beams are commonly thought to be collimated light, this is not the case. Gaussian beams propagate according to the following equation:
 
-<GaussProp />
+<div class="flex gap-4">
+  <GaussPropShortCard />
 
+  <div class="card variant-soft-primary p-4 text-sm">
+    <h6>Notes:</h6>
+    <ol class="list-inside list-disc">
+      <li>w0: begining beam waist or semi-diameter</li>
+      <li>Z: distance from waist w0</li>
+      <li>Zr: Rayleigh Length constant for beam</li>
+      <li>all values must be in mm</li>
+      <li>resulting w(z) in mm</li>
+    </ol>
+  </div>
+</div>
 <p style="text-align: center;"> <strong> Equation {equnum++} </strong></p>
 
 
@@ -56,10 +68,10 @@ In this equation w(z) is the beam waist (or radius) at any given distance z - th
   <div class="card variant-soft-primary p-4 text-sm">
     <h6>Notes:</h6>
     <ol class="list-inside list-disc">
-      <li>w0: begining beam waist or semi-diameter</li>
+      <li>w0: begining beam waist in mm</li>
       <li>n: index of refraction of the medium</li>
       <li>λ: wavelength of light in units of μm</li>
-      <li>all values must be in mm</li>
+      <li>resulting Rayleigh Length in mm</li>
     </ol>
   </div>
 </div>
@@ -70,7 +82,7 @@ Using the two equations above one can predict how the gaussian beam diverges as 
 <BeamProp2 zstart={0} zend={2000} zinc={5} showDivergence={false}/>
 <p style="text-align: center;"> <strong> Graph 1: Gaussian Beam Propagation. </strong></p>
 
-<BeamProp3 zstart={0} zend={1000} zinc={5} showDivergence={false} showRangeSliders={false}/>
+<BeamProp3 w0={0.25} wasitMaxScale={0.5} zstart={-150} zend={350} zinc={5} showDivergence={false} showRangeSliders={false}/>
 <p style="text-align: center;"> <strong> Graph 2: Definition of Rayleigh Length. </strong></p>
 
 <div class="wrapper">
@@ -82,7 +94,19 @@ Using the two equations above one can predict how the gaussian beam diverges as 
 
 Inserting the Rayleigh Range equation (Equation 2) into Equation 1 produces a more informative version of the gaussian beam propagation equation.
 
-<GaussProp2 />
+<div class="flex gap-4">
+  <GaussPropFullCard />
+
+  <div class="card variant-soft-primary p-4 text-sm">
+    <h6>Notes:</h6>
+    <ol class="list-inside list-disc">
+      <li>w0: begining beam waist in mm</li>
+      <li>Z: distance from waist w0 in mm</li>
+      <li>λ wavelength in microns</li>
+      <li>resulting w(z) in mm</li>
+    </ol>
+  </div>
+</div>
 <p style="text-align: center;"> <strong> Equation {equnum++} </strong></p>
 
 ### Beam Divergence
@@ -101,7 +125,7 @@ When the beam is very far from the waist of the laser beam (Z >> Z<sub>r</sub>) 
   <div class="card variant-soft-primary p-4 text-sm">
     <h6>Notes:</h6>
     <ol class="list-inside list-disc">
-      <li>w0: begining beam waist or semi-diameter</li>
+      <li>w0: begining beam waist in mm</li>
       <li>λ: wavelength of light in units of μm</li>
       <li>resulting slope angle in milliradians</li>
     </ol>

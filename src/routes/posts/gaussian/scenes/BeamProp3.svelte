@@ -18,6 +18,7 @@
   export let zinc = 2
   export let showRangeSliders = true
   export let showDivergence = true
+  export let wasitMaxScale = 1.0
 
   let showWZ = true
   let showZr = true
@@ -50,7 +51,7 @@
   $: zr = (Math.PI * waistvalue * waistvalue * n) / wavelvalue
   let maxY = w0 * Math.sqrt(1 + (zend / zr) * (zend / zr)) // max waist size needed for scale chart
   maxY = setAxisLimits(0, maxY, zinc)[1] // round up to nearest logical chart scale
-  maxY = 1 // override for now
+  maxY = wasitMaxScale // override for now
 
   // set scale constants for w and z
   let scaleZ = 2 * gridWidth
@@ -71,7 +72,7 @@
     let endY = waist * Math.sqrt(1 + (zend / zrj) * (zend / zrj))
     maxY = Math.max(startY, endY)
     maxY = setAxisLimits(0, maxY, zinc)[1] // round up to nearest logical chart scale
-    maxY = 1 // override for now
+    maxY = wasitMaxScale // override for now
     scaleY0 = (waist * scaleY) / maxY / 2
 
     for (let i = zstart; i <= zend; i += zinc) {
@@ -98,7 +99,7 @@
     let endY = waist * Math.sqrt(1 + (zend / zrj) * (zend / zrj))
     maxY = Math.max(startY, endY)
     maxY = setAxisLimits(0, maxY, zinc)[1] // round up to nearest logical chart scale
-    maxY = 1 // override for now
+    maxY = wasitMaxScale // override for now
     return maxY
   }
 
@@ -342,28 +343,17 @@
       />
     </T.Mesh>
 
-    <!-- add divergence line -->
-    <T.Mesh visible={showDivergence}>
-      <T.Line
-        geometry={new BufferGeometry().setFromPoints(slopeLines)}
-        material={new LineDashedMaterial({ color: 0xff0000 })}
+    <!-- Divergence line and angle Label -->
+    {#if showDivergence}
+      <Aline
+        vs={slopeLines}
+        arrow={2}
+        label={'Divergence Angle: Theta'}
+        textAX={'center'}
+        textAY={'top'}
+        setTextAngle={true}
       />
-    </T.Mesh>
-
-    <!-- Divergence angle Label -->
-    <T.Mesh
-      position={[xoffset, divergAngleLabelYOffset, zWaistGridUnits + thetaLabelZOffset]}
-      rotation={[0, -Math.PI / 2, divAngleTextRotation]}
-      visible={showDivergence}
-    >
-      <Text
-        text={'divergence angle = ' + (theta * 1000).toFixed(2) + ' mrad'}
-        color={0x000000}
-        fontSize={8}
-        anchorX={'center'}
-        anchorY={'middle'}
-      />
-    </T.Mesh>
+    {/if}
 
     <!-- line and label W0 -->
     <Aline vs={W0Lines} arrow={2} label={'W0'} />

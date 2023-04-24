@@ -11,9 +11,16 @@
   export let lineColor = 0xff0000
   export let textColor = 0x000000
   export let isVisible = true
+  export let setTextAngle = false
 
   let v0: Vector3 = vs[0]
   let v1: Vector3 = vs[1]
+
+  let textRotation = 0
+
+  if (setTextAngle) {
+    textRotation = -Math.atan2(v1.y - v0.y, v1.z - v0.z)
+  }
 
   let labelPosition: [number, number, number] = [
     (v0.x + v1.x) / 2,
@@ -63,7 +70,12 @@
   {/if}
 
   <!-- Label mid Line -->
-  <T.Mesh position={labelPosition} rotation.y={-Math.PI / 2} visible={true}>
+  <T.Mesh
+    position={labelPosition}
+    rotation.y={-Math.PI / 2}
+    rotation.x={textRotation}
+    visible={true}
+  >
     <Text text={label} color={textColor} fontSize={12} anchorX={textAX} anchorY={textAY} />
   </T.Mesh>
 </T.Group>
