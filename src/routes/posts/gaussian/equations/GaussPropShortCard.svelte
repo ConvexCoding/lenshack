@@ -1,6 +1,7 @@
 <script lang="ts">
   import { dev } from '$app/environment'
   import InlineEdit from '$lib/InlineEdit.svelte'
+  import InlineEdit2 from '$lib/InlineEdit2.svelte'
 
   export let equationTextSize = 'text-xl'
   const debug = dev
@@ -38,11 +39,13 @@
 <div class="card relative flex flex-1 justify-center gap-4 p-0 md:py-0 {equationTextSize}">
   <math xmlns="http://www.w3.org/1998/Math/MathML">
     <mrow>
-      <mi>w(z)</mi>
+      <mi>w</mi><mo>(</mo><mi>z</mi><mo>)</mo>
       <mo> = </mo>
       <msub>
         <mi>
-          <InlineEdit bind:value={w0} placeholder="w0" />
+          <InlineEdit2 bind:value={w0} placeholder="w0">
+            <msub><mi>w</mi><mn>0</mn></msub>
+          </InlineEdit2>
         </mi>
       </msub>
       <msqrt>

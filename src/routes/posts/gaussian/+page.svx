@@ -25,12 +25,14 @@
 
   let fignum = 1
   let equnum = 1
-
+  
+  let w0 = 0.0
 </script>
 
 # **Gaussian Laser Beams**
 
 ### _Some Interesting Facts & Equations_
+
 
 <AtestCanvas/>
 <p style="text-align: center;"> <strong> Figure Test </strong></p>
