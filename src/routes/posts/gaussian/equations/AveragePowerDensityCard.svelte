@@ -2,6 +2,7 @@
 <script lang="ts">
   import { dev } from '$app/environment'
   import InlineEdit from '$lib/InlineEdit.svelte'
+  import InlineEdit2 from '$lib/InlineEdit2.svelte'
 
   export let equationTextSize = 'text-xl'
   const debug = dev
@@ -39,7 +40,9 @@
 
     <div class="flex flex-col">
       <div class="flex justify-center gap-1.5">
-        <InlineEdit bind:value={P0} placeholder="P0" />
+        <InlineEdit2 bind:value={P0} placeholder="P0">
+          P<sub>0</sub>
+        </InlineEdit2>
       </div>
 
       <hr class="m-1 !border-t-2 !border-black/60" />

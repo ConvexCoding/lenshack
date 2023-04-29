@@ -2,12 +2,11 @@
   import { Canvas } from '@threlte/core'
   import { MirroredRepeatWrapping } from 'three'
   import RayleighEquationCard from './equations/RayleighEquationCard.svelte'
-  import GaussEquationCard from './equations/GaussEquationCard.svelte'
+  import SpotSizeCard from './equations/SpotSizeCard.svelte'
   import BeamDivergenceCard from './equations/BeamDivergenceCard.svelte'
-  import GaussIntensityEquation from './equations/GaussIntensityEquation.svelte'
+  import GaussIntensityEquationCard from './equations/GaussIntensityEquationCard.svelte'
   import GaussPropShortCard from   './equations/GaussPropShortCard.svelte'
   import GaussPropFullCard from   './equations/GaussPropFullCard.svelte'
-  import Rayleigh from './equations/Rayleigh.svelte'
   import GaussDistributionChart2D from './scenes/GaussDistributionChart2D.svelte'
   import GaussDistributionChart3D from './scenes/GaussDistributionChart3D.svelte'
   import Scene from './scenes/Scene.svelte'
@@ -51,7 +50,7 @@ Although laser beams are commonly thought to be collimated light, this is not th
   <div class="card variant-soft-primary p-4 text-sm">
     <h6>Notes:</h6>
     <ol class="list-inside list-disc">
-      <li>w0: begining beam waist or semi-diameter</li>
+      <li>w₀: begining beam waist or semi-diameter</li>
       <li>Z: distance from waist w0</li>
       <li>Zr: Rayleigh Length constant for beam</li>
       <li>all values must be in mm</li>
@@ -59,7 +58,7 @@ Although laser beams are commonly thought to be collimated light, this is not th
     </ol>
   </div>
 </div>
-<p style="text-align: center;"> <strong> Equation {equnum++} </strong></p>
+<p style="text-align: center;"> <strong> Equation {equnum++} - Gaussain Beam Propagation (short)</strong></p>
 
 
 In this equation w(z) is the beam waist (or radius) at any given distance z - the distance the laser beam travels along it's optic axis. The value z<sub>r</sub> is the Rayleigh Range, which is a constant for a gaussian laser beam of wavelength, λ, and initial beam radius of w<sub>0</sub>. The equation for the Rayleigh Range constant is:
@@ -70,16 +69,15 @@ In this equation w(z) is the beam waist (or radius) at any given distance z - th
   <div class="card variant-soft-primary p-4 text-sm">
     <h6>Notes:</h6>
     <ol class="list-inside list-disc">
-      <li>w0: begining beam waist in mm</li>
-      <li>n: index of refraction of the medium</li>
+      <li>w₀: begining beam waist in mm</li>
       <li>λ: wavelength of light in units of μm</li>
       <li>resulting Rayleigh Length in mm</li>
     </ol>
   </div>
 </div>
-<p style="text-align: center;"> <strong> Equation {equnum++} </strong></p>
+<p style="text-align: center;"> <strong> Equation {equnum++} - Rayleigh Length</strong></p>
 
-Using the two equations above one can predict how the gaussian beam diverges as it propagates away from the waist position through a medium with index of refraction, n. The next graph shows this divergence of a laser beam over the 1st 2 meters of it's life. We can assuming that unless otherwise stated the transport medium for the beam is air with an approximate index of 1.0. Change the sliders for waist and wavelength to get a feeling for how these parameters change the beam propagation.
+Using the two equations above one can predict how the gaussian beam diverges as it propagates away from the waist position. The next graph shows this divergence of a laser beam over the 1st 2 meters of it's life. We can assume that unless otherwise stated the transport medium for the beam is air with an approximate index of 1.0. Change the sliders for waist and wavelength to get a feeling for how these parameters change the beam propagation.
 
 <BeamProp2 zstart={0} zend={2000} zinc={5} showDivergence={false}/>
 <p style="text-align: center;"> <strong> Graph 1: Gaussian Beam Propagation. </strong></p>
@@ -102,14 +100,14 @@ Inserting the Rayleigh Range equation (Equation 2) into Equation 1 produces a mo
   <div class="card variant-soft-primary p-4 text-sm">
     <h6>Notes:</h6>
     <ol class="list-inside list-disc">
-      <li>w0: begining beam waist in mm</li>
+      <li>w<sub>0</sub>: begining beam waist in mm</li>
       <li>Z: distance from waist w0 in mm</li>
       <li>λ wavelength in microns</li>
       <li>resulting w(z) in mm</li>
     </ol>
   </div>
 </div>
-<p style="text-align: center;"> <strong> Equation {equnum++} </strong></p>
+<p style="text-align: center;"> <strong> Equation {equnum++} - Gaussian Beam Propagation (full) </strong></p>
 
 ### Beam Divergence
 
@@ -127,13 +125,13 @@ When the beam is very far from the waist of the laser beam (Z >> Z<sub>r</sub>) 
   <div class="card variant-soft-primary p-4 text-sm">
     <h6>Notes:</h6>
     <ol class="list-inside list-disc">
-      <li>w0: begining beam waist in mm</li>
+      <li>w<sub>0</sub>: begining beam waist in mm</li>
       <li>λ: wavelength of light in units of μm</li>
       <li>resulting slope angle in milliradians</li>
     </ol>
   </div>
 </div>
-<p style="text-align: center;"> <strong> Equation {equnum++} </strong></p>
+<p style="text-align: center;"> <strong> Equation {equnum++} - Far Field Beam Divergence</strong></p>
 
 Sometimes a gaussian beam is said to be in the 'near field' when the beam is measured in a region near the waist. When the beam has propagated at distances greater than the Rayleigh Length, then the beam is said to be in far field where the divergence angle is given by Equation 4.
 
@@ -149,7 +147,7 @@ The real power of a laser beam is realized when a laser beam is passed through a
 The above figure shows a LensKit.App (https://www.lenskit.app/) model of a laser beam passing through a ZnSe lens. The laser beam diameter at the focus of the lens can be estimated using the following equation (Calculator Equation - type in numbers for each variable):
 
 <div class="flex gap-4">
-  <GaussEquationCard />
+  <SpotSizeCard />
 
   <div class="card variant-soft-primary p-4 text-sm">
     <h6>Notes:</h6>
@@ -161,7 +159,7 @@ The above figure shows a LensKit.App (https://www.lenskit.app/) model of a laser
     </ol>
   </div>
 </div>
-<p style="text-align: center;"> <strong> Equation {equnum++} </strong></p>
+<p style="text-align: center;"> <strong> Equation {equnum++} - Spot Size at Focus of Lens </strong></p>
 
 Here f is the focal length of the lens, D is the gaussian beam diameter (2 * w0), and of course λ is, as in all other equations in this post, the wavelength of the laser light. If the focal length and beam diameter are in mm's, and the wavelength in microns, then the resulting spot size, ss, will be in microns. The sketch below shows what this might look like graphically.
 
@@ -170,8 +168,8 @@ Here f is the focal length of the lens, D is the gaussian beam diameter (2 * w0)
 
 In general a lens will perform a fourier transform on the input beam of light. The intensity distribution at focus will depend on the intensity distribution of the input light. So for a light beam with a uniform intensity, the intensity distribution at focus of a lens will have an Airy Disc distribution. One of the important aspects of a light beam with a gaussian distribution is the fourier transform by a lens produces a gaussian distribution at focus. In fact the beam will have a gaussian distribution at all points along its path, assuming that any lens or mirror the beam encounters is free of aberrations. The equation for the intensity distribution of a gaussian beam is:
 
-<GaussIntensityEquation />
-<p style="text-align: center;"> <strong> Equation {equnum++} </strong></p>
+<GaussIntensityEquationCard />
+<p style="text-align: center;"> <strong> Equation {equnum++}  - Gauss Intensity Distrubtion </strong></p>
 
 Here, I<sub>0</sub> is the peak intensity at the center of the beam, r is the radial distance from the center of the beam, and w<sub>0</sub> is the gaussian waist of the beam. The plot below shows the intensity distribution for a beam with a waist of 0.2 mm. In this plot we have normalized the peak intensity (I<sub>0</sub>) to 1.0.
 
@@ -191,14 +189,14 @@ Most of the time it is convenient to calculate the average laser power density o
   <div class="card variant-soft-primary p-4 text-sm">
     <h6>Notes:</h6>
     <ol class="list-inside list-disc">
-      <li>P0: total laser power in Watts</li>
+      <li>P<sub>0</sub>: total laser power in Watts</li>
       <li>r: gaussian beam radius at 1/e² pwr pts</li>
       <li>resulting units will be watts/mm<sup>2</sup></li>
     </ol>
   </div>
 </div>
 
-<p style="text-align: center;"> <strong> Equation {equnum++} </strong></p>
+<p style="text-align: center;"> <strong> Equation {equnum++} - Average Power Density </strong></p>
 
 Average power calculations are useful and depending on the type of laser operation they are helpful in deciding how to focus the beam and get work done. But in some cases, the laser beam is focused on materials that can be quite sensitive to peak power densities. In this case it is more important to know the peak power density of the beam which occurs in the very center. The peak power density is given by:
 
@@ -208,14 +206,14 @@ Average power calculations are useful and depending on the type of laser operati
   <div class="card variant-soft-primary p-4 text-sm">
     <h6>Notes:</h6>
     <ol class="list-inside list-disc">
-      <li>P0: total laser power in Watts</li>
+      <li>P<sub>0</sub>: total laser power in Watts</li>
       <li>r: gaussian beam radius at 1/e² pwr pts</li>
       <li>resulting units will be watts/mm<sup>2</sup></li>
     </ol>
   </div>
 </div>
 
-<p style="text-align: center;"> <strong> Equation {equnum++} </strong></p>
+<p style="text-align: center;"> <strong> Equation {equnum++} - Peak Power Density</strong></p>
 
 This is just the power density that occurs in the center of the gaussian beam.
 

@@ -39,7 +39,7 @@
   <math xmlns="http://www.w3.org/1998/Math/MathML">
     <mi>I</mi>
     <mo>=</mo>
-    <mi><InlineEdit bind:value={I0} placeholder="I0" /></mi>
+    <mi><InlineEdit bind:value={I0} placeholder="I₀" /></mi>
     <mo>·</mo>
 
     <msup>
@@ -52,7 +52,7 @@
             <mi>2</mi>
             <mfrac>
               <msup><mi><InlineEdit bind:value={r} placeholder="r" /></mi><mn>2</mn></msup>
-              <msup><mi><InlineEdit bind:value={w0} placeholder="w" /></mi> <mn> 2 </mn></msup>
+              <msup><mi><InlineEdit bind:value={w0} placeholder="w₀" /></mi> <mn> 2 </mn></msup>
             </mfrac>
           </mrow>
           <mo>)</mo>

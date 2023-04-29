@@ -2,28 +2,26 @@
 <script lang="ts">
   import { dev } from '$app/environment'
   import InlineEdit from '$lib/InlineEdit.svelte'
+  import InlineEdit2 from '$lib/InlineEdit2.svelte'
 
   export let equationTextSize = 'text-xl'
   const debug = dev
 
   let w0 = ''
-  let n = ''
   let lambda = ''
 
-  $: hasValues = w0 || n || lambda
+  $: hasValues = w0 || lambda
 
   function testEquation() {
     w0 = '0.5'
-    n = '1.0'
     lambda = '1.07'
   }
 
-  function solveEquation(w0: string, n: string, lambda: string) {
+  function solveEquation(w0: string, lambda: string) {
     const W0Val = parseFloat(w0)
-    const nVal = parseFloat(n)
     const lambdaVal = parseFloat(lambda)
 
-    if (isNaN(W0Val) || isNaN(nVal) || isNaN(lambdaVal)) {
+    if (isNaN(W0Val) || isNaN(lambdaVal)) {
       return
     }
 
@@ -33,7 +31,7 @@
     return `${waist.toFixed(3)} mm`
   }
 
-  $: waist = solveEquation(w0, n, lambda)
+  $: waist = solveEquation(w0, lambda)
 </script>
 
 <div class="card relative flex flex-1 justify-center gap-4 p-6 md:py-10 {equationTextSize}">
@@ -47,11 +45,10 @@
         <span />
         <span> π </span>
         <span> · </span>
-        <InlineEdit bind:value={w0} placeholder="w0" />
+        <InlineEdit2 bind:value={w0} placeholder="w0">
+          w<sub>0</sub>
+        </InlineEdit2>
         <span class="relative bottom-1 right-1.5">²</span>
-        <span> · </span>
-        <InlineEdit bind:value={n} placeholder="n" />
-        <span />
       </div>
 
       <hr class="m-1 !border-t-2 !border-black/60" />
@@ -71,7 +68,7 @@
   {#if hasValues}
     <button
       class="btn btn-sm variant-ghost-primary absolute right-2 top-2"
-      on:click={() => (w0 = n = lambda = '')}
+      on:click={() => (w0 = lambda = '')}
     >
       Reset
     </button>

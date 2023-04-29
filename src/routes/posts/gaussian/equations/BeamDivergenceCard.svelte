@@ -2,6 +2,7 @@
 <script lang="ts">
   import { dev } from '$app/environment'
   import InlineEdit from '$lib/InlineEdit.svelte'
+  import InlineEdit2 from '$lib/InlineEdit2.svelte'
 
   export let equationTextSize = 'text-xl'
   const debug = dev
@@ -47,7 +48,9 @@
       <div class="flex gap-1.5">
         <span> π </span>
         <span> · </span>
-        <InlineEdit bind:value={w0} placeholder="w0" />
+        <InlineEdit2 bind:value={w0} placeholder="w0">
+          w<sub>0</sub>
+        </InlineEdit2>
       </div>
     </div>
 

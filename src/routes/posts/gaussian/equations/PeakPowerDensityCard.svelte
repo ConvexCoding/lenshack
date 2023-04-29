@@ -2,6 +2,7 @@
 <script lang="ts">
   import { dev } from '$app/environment'
   import InlineEdit from '$lib/InlineEdit.svelte'
+  import InlineEdit2 from '$lib/InlineEdit2.svelte'
 
   export let equationTextSize = 'text-xl'
   const debug = dev
@@ -42,7 +43,9 @@
         <span />
         <span> 2 </span>
         <span> · </span>
-        <InlineEdit bind:value={P0} placeholder="P0" />
+        <InlineEdit2 bind:value={P0} placeholder="P0">
+          P<sub>0</sub>
+        </InlineEdit2>
       </div>
       <span />
 

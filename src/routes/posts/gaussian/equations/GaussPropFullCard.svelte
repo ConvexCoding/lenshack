@@ -41,7 +41,7 @@
       <mi>w(z)</mi>
       <mo> = </mo>
       <mi>
-        <InlineEdit bind:value={w0} placeholder="w0" />
+        <InlineEdit bind:value={w0} placeholder="w₀" />
       </mi>
       <msqrt>
         <mrow>
@@ -61,7 +61,7 @@
                   <msub
                     ><mrow>
                       <mi>&pi;</mi><msup
-                        ><mo><InlineEdit bind:value={w0} placeholder="w0" /></mo><mo>2</mo></msup
+                        ><mo><InlineEdit bind:value={w0} placeholder="w₀" /></mo><mo>2</mo></msup
                       >
                     </mrow></msub
                   >
