@@ -2,8 +2,23 @@
   import { OrbitControls } from '@threlte/extras'
   import { Canvas, T } from '@threlte/core'
   import { Text } from '@threlte/extras'
-  import { BufferGeometry, DoubleSide, Group, LineDashedMaterial, Matrix3, Vector3 } from 'three'
-  import { genGridLines, genLineSegment, setAxisLimits, toGrid, toWorld } from '$lib/mathUtils'
+  import {
+    BufferGeometry,
+    DoubleSide,
+    Group,
+    LineDashedMaterial,
+    Matrix3,
+    OrthographicCamera,
+    Vector3,
+  } from 'three'
+  import {
+    genGridLines,
+    genLineSegment,
+    genSolidLens,
+    setAxisLimits,
+    toGrid,
+    toWorld,
+  } from '$lib/mathUtils'
   import Coords from '$lib/Coords.svelte'
   import { Line2 } from 'three/examples/jsm/lines/Line2'
   import { LineMaterial } from 'three/examples/jsm/lines/LineMaterial'
@@ -40,34 +55,34 @@
   // R(z) = z (1 + (z_r / z)^2)
 
   let zr = (Math.PI * w0 * w0) / ((λ * msq) / 1000)
-  console.log('🚀 ~ zr:', zr)
+  //console.log('🚀 ~ zr:', zr)
 
   let p0: Complex = { real: 0, imag: zr }
   let p2: Complex = { real: zend, imag: zr }
 
-  console.log('🚀 ~ p2:', p2)
+  //console.log('🚀 ~ p2:', p2)
   let p2recip = Reciprocal(p2)
-  console.log('🚀 ~ p2recip:', p2recip)
+  //console.log('🚀 ~ p2recip:', p2recip)
 
   let m: Matrix2D = { A: 1, B: zend, C: 0, D: 1 }
 
-  console.log('🚀 ~ zend:', zend)
-  console.log('🚀 ~ p0:', p0)
+  //console.log('🚀 ~ zend:', zend)
+  //console.log('🚀 ~ p0:', p0)
   let pi = Matrix2DxComplex(m, p0)
-  console.log('🚀 ~ p2matrix:', pi)
-  console.log('🚀 ~ p2:', p2)
+  //console.log('🚀 ~ p2matrix:', pi)
+  //console.log('🚀 ~ p2:', p2)
 
   let wz = waistSize(p2, λ, msq, n)
-  console.log('🚀 ~ wz:', wz)
+  //console.log('🚀 ~ wz:', wz)
 
   let mlens: Matrix2D = { A: 1, B: 0, C: -1 / 100, D: 1 }
   let plens = Matrix2DxComplex(mlens, { real: 1000, imag: zr })
-  console.log('🚀 ~ plens:', plens)
+  //console.log('🚀 ~ plens:', plens)
   let zrlens = plens.imag
-  console.log('🚀 ~ zrlens:', zrlens)
+  //console.log('🚀 ~ zrlens:', zrlens)
   let wlens = waistSize(plens, λ, msq, n)
-  console.log('🚀 ~ wlens:', wlens)
-  console.log(beamProps(plens, λ, msq, n))
+  //console.log('🚀 ~ wlens:', wlens)
+  //console.log(beamProps(plens, λ, msq, n))
   //let wi =
 
   // x = ((λ * msq / 1000) / (Math.PI * wz^2))
@@ -116,15 +131,29 @@
 
   const xoffset = -2
 
-  function genLineSegs(waist: number, wavelength: number) {
-    let pluslinesegs = new Float32Array(((zend - zstart) / zinc + 1) * 3)
-    let neglinesegs = new Float32Array(((zend - zstart) / zinc + 1) * 3)
+  interface tracesegs {
+    begin: number
+    end: number
+    inc: number
+    efl: number
+    isLens: boolean
+  }
 
+  const maininc = 1
+  let traces: tracesegs[] = []
+  traces.push({ begin: 0, end: 700, inc: maininc, efl: 0, isLens: false })
+  traces.push({ begin: 700, end: 1000, inc: maininc, efl: 96, isLens: true })
+  traces.push({ begin: 1000, end: 1850, inc: maininc, efl: 200, isLens: true })
+  traces.push({ begin: 1850, end: 2000, inc: maininc, efl: 150, isLens: true })
+
+  let lens1 = genSolidLens(5, 100, -100, 5)
+
+  function genLineSegs(waist: number, wavelength: number) {
     const z: number[] = []
     const w: number[] = []
     const wp: number[] = []
 
-    const zrj = (Math.PI * waist * waist) / (wavelength / 1000)
+    let zrj = (Math.PI * waist * waist) / (wavelength / 1000)
     let startY = waist * Math.sqrt(1 + (zstart / zrj) * (zstart / zrj))
     let endY = waist * Math.sqrt(1 + (zend / zrj) * (zend / zrj))
     maxY = Math.max(startY, endY)
@@ -132,16 +161,31 @@
     maxY = wasitMaxScale // override for now
     scaleY0 = (waist * scaleY) / maxY / 2
 
-    for (let i = zstart; i <= zend; i += zinc) {
-      z.push(((i - zstart) * scaleZ) / (zend - zstart) - scaleZ / 2)
-      const wz = waist * Math.sqrt(1 + (i / zrj) * (i / zrj))
-      let p2: Complex = { real: i, imag: zrj }
-      let wposi = waistSize(p2, λ, msq, n)
-      w.push((wz * scaleY) / 2 / maxY)
-      wp.push((wposi * scaleY) / 2 / maxY)
-    }
-    const numPoints = w.length
+    zrj = (Math.PI * waist * waist * n) / ((wavelength * msq) / 1000)
+    let p2: Complex
+    let zoffset = 0
 
+    traces.forEach((trace, index) => {
+      if (index > 0) {
+        const mlens = { A: 1, B: 0, C: -1 / trace.efl, D: 1 }
+        p2 = Matrix2DxComplex(mlens, p2)
+        const [znew, minwaist, roc, wzsize] = beamProps(p2, λ, msq, n)
+        zrj = (Math.PI * minwaist * minwaist * n) / ((wavelength * msq) / 1000)
+        zoffset = traces[index - 1].end - znew
+      }
+      console.log(trace)
+      for (let i = trace.begin; i <= trace.end; i += trace.inc) {
+        z.push((i * scaleZ) / (zend - zstart) - scaleZ / 2)
+        p2 = { real: i - zoffset, imag: zrj }
+        let wposi = waistSize(p2, λ, msq, n)
+        wp.push((wposi * scaleY) / 2 / maxY)
+        w.push((wposi * scaleY) / 2 / maxY)
+      }
+    })
+
+    const numPoints = w.length
+    let pluslinesegs = new Float32Array(w.length * 3)
+    let neglinesegs = new Float32Array(w.length * 3)
     for (let i = 0; i < numPoints; i++) {
       pluslinesegs[i * 3] = xoffset // set x-coordinate to 0
       pluslinesegs[i * 3 + 1] = wp[i] // set y-coordinate to w[i]
@@ -227,15 +271,16 @@
 -->
 
     <!-- Add Camera -->
-    <T.PerspectiveCamera
+    <T.OrthographicCamera
       makeDefault
-      position={[-200, 0, 0]}
+      position={[-100, 0, 0]}
+      scale={0.6}
       on:create={({ ref }) => {
         ref.lookAt(0, 0, 0)
       }}
     >
       <OrbitControls enableZoom enableRotate={true} enablePan={true} />
-    </T.PerspectiveCamera>
+    </T.OrthographicCamera>
 
     <!-- Add Lights -->
     <T.DirectionalLight position={[-100, 0, 0]} intensity={0.75} />
@@ -254,6 +299,52 @@
         is={Line2}
         geometry={genLineSegment(data[1])}
         material={new LineMaterial({ color: 0x0000ff, linewidth: 0.01 })}
+      />
+    </T.Mesh>
+
+    <!-- lens 1 -->
+    <T.Mesh
+      geometry={genSolidLens(70, 200, -200, 10)}
+      position={[0, 0, -65]}
+      rotation={[Math.PI / 2, 0, 0]}
+      let:ref
+    >
+      <T.MeshPhongMaterial
+        color={'red'}
+        opacity={0.4}
+        transparent
+        side={DoubleSide}
+        shininess={100}
+      />
+    </T.Mesh>
+
+    <T.Mesh
+      geometry={genSolidLens(130, 400, -400, 20)}
+      position={[0, 0, -10]}
+      rotation={[Math.PI / 2, 0, 0]}
+      let:ref
+    >
+      <T.MeshPhongMaterial
+        color={'red'}
+        opacity={0.4}
+        transparent
+        side={DoubleSide}
+        shininess={100}
+      />
+    </T.Mesh>
+
+    <T.Mesh
+      geometry={genSolidLens(130, 400, -400, 20)}
+      position={[0, 0, 160]}
+      rotation={[Math.PI / 2, 0, 0]}
+      let:ref
+    >
+      <T.MeshPhongMaterial
+        color={'red'}
+        opacity={0.4}
+        transparent
+        side={DoubleSide}
+        shininess={100}
       />
     </T.Mesh>
 
@@ -350,7 +441,7 @@
     <!-- Title -->
     <T.Mesh position={[xoffset, -gridHeight, -gridWidth]} rotation.y={-Math.PI / 2} visible={true}>
       <Text
-        text={'Ray Trace Through Theoretical Lens'}
+        text={'Ray Trace Through Theoretical Lens System'}
         color={0x000000}
         fontSize={10}
         anchorX={'left'}

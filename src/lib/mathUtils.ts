@@ -1,6 +1,23 @@
-import { Vector2, Vector3, BufferGeometry, BufferAttribute } from 'three'
+import { Vector2, Vector3, BufferGeometry, BufferAttribute, LatheGeometry } from 'three'
 import { LineGeometry } from 'three/examples/jsm/lines/LineGeometry'
 import { Lut } from 'three/examples/jsm/math/Lut'
+
+export function genSolidLens(ap: number, Radius1: number, Radius2: number, ct: number, divisionsperlensseg = 21, radialdivisions = 51) {
+  const pts1plus = []
+  const pts2plus = []
+  const step = ap / 2 / (divisionsperlensseg - 1)
+
+
+  // define lens arc
+  for (let i = 0; i < divisionsperlensseg; i++) {
+    const r = i * step
+    const sag1 = Radius1 - Math.sqrt(Radius1*Radius1 - r*r)
+    const sag2 = Math.sign(Radius2) * (Math.abs(Radius2) - Math.sqrt(Radius2*Radius2 - r*r))
+    pts1plus.push(new Vector2(r, sag1))
+    pts2plus.push(new Vector2(r, sag2 + ct))
+  }
+  return new LatheGeometry(pts1plus.concat(pts2plus.reverse()), radialdivisions, 0, Math.PI * 2)
+}
 
 export function toGrid(zpoint: number, scale: number[][]): number {
     // g1 = gridWidth

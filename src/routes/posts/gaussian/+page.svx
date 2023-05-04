@@ -33,6 +33,7 @@
 
 ### _Some Interesting Facts & Equations_
 
+<BeamProp4 w0={1} wasitMaxScale={3.0} zstart={0} zend={2000} zinc={100} showRangeSliders={false}/>
 
 <AtestCanvas/>
 <p style="text-align: center;"> <strong> Figure Test </strong></p>
@@ -164,9 +165,10 @@ The above figure shows a LensKit.App (https://www.lenskit.app/) model of a laser
 
 Here f is the focal length of the lens, D is the gaussian beam diameter (2 * w0), and of course λ is, as in all other equations in this post, the wavelength of the laser light. If the focal length and beam diameter are in mm's, and the wavelength in microns, then the resulting spot size, ss, will be in microns. The sketch below shows what this might look like graphically.
 
+/// Beam prop 4 goes here
 
-<BeamProp4 w0={1} wasitMaxScale={2.5} zstart={0} zend={2000} zinc={100} />
-<p style="text-align: center;"> <strong> GFigure {fignum++}  </strong></p>
+
+<p style="text-align: center;"> <strong> GFigure {fignum++} - Gauss Ray Tracer  </strong></p>
 
 <img class="h-64 w-auto m-5" src="/gausswithlens.webp" alt={'dummy'} />
 <p style="text-align: center;"> <strong> Figure {fignum++} </strong></p>
