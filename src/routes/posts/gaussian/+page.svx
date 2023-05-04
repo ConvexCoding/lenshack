@@ -16,6 +16,7 @@
   import BeamProp from './scenes/BeamProp.svelte'
   import BeamProp2 from './scenes/BeamProp2.svelte'
   import BeamProp3 from './scenes/BeamProp3.svelte'
+  import BeamProp4 from './scenes/BeamProp4.svelte'
   import { RangeSlider, SlideToggle } from '@skeletonlabs/skeleton'
   import Form from './scenes/Form.svelte'
   import AtestCanvas from './scenes/AtestCanvas.svelte'
@@ -162,6 +163,10 @@ The above figure shows a LensKit.App (https://www.lenskit.app/) model of a laser
 <p style="text-align: center;"> <strong> Equation {equnum++} - Spot Size at Focus of Lens </strong></p>
 
 Here f is the focal length of the lens, D is the gaussian beam diameter (2 * w0), and of course λ is, as in all other equations in this post, the wavelength of the laser light. If the focal length and beam diameter are in mm's, and the wavelength in microns, then the resulting spot size, ss, will be in microns. The sketch below shows what this might look like graphically.
+
+
+<BeamProp4 w0={1} wasitMaxScale={2.5} zstart={0} zend={2000} zinc={100} />
+<p style="text-align: center;"> <strong> GFigure {fignum++}  </strong></p>
 
 <img class="h-64 w-auto m-5" src="/gausswithlens.webp" alt={'dummy'} />
 <p style="text-align: center;"> <strong> Figure {fignum++} </strong></p>
