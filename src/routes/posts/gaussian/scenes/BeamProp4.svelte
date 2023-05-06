@@ -6,6 +6,7 @@
     BufferGeometry,
     DoubleSide,
     Group,
+    LatheGeometry,
     LineDashedMaterial,
     Matrix3,
     OrthographicCamera,
@@ -24,6 +25,7 @@
   import { LineMaterial } from 'three/examples/jsm/lines/LineMaterial'
   import { RangeSlider } from '@skeletonlabs/skeleton'
   import Aline from '$lib/Aline.svelte'
+  import AlineVertical from '$lib/AlineVertical.svelte'
 
   import * as math from 'mathjs'
 
@@ -37,7 +39,7 @@
   } from '$lib/Gcomplex'
 
   export let w0 = 1
-  export let λ = Math.PI
+  export let λ = 1
   export let msq = 1
   export let n = 1
   export let zstart = 0
@@ -99,17 +101,27 @@
   // and the z distance is mapped to the z axis
 
   let waistvalue = w0
-  let waistmin = 0.25
-  let waistmax = 4.0
+  let waistmin = 0.05
+  let waistmax = 5.0
   let waisttic = 0.05
 
   let wavelvalue = λ
   let wavelmin = 1
-  let wavelmax = 30
+  let wavelmax = 20
   let waveltic = 1
 
+  let lensf = 375
+  let fmin = 50
+  let fmax = 500
+  let ftic = 25
+
+  let lensz = 1200
+  let lenszmin = 200
+  let lenszmax = 1800
+  let lensztic = 25
+
   // displayed chart in pixels
-  const gridWidth = 200 // total grid width = 2 * gridWidth
+  const gridWidth = 250 // total grid width = 2 * gridWidth
   const gridHeight = 75 // total grid height = 2 * gridHeight
 
   const zScale = [
@@ -126,7 +138,9 @@
 
   // set scale constants for w and z
   let scaleZ = 2 * gridWidth
+  let ratioZ = (zend - zstart) / scaleZ
   let scaleY = 2 * gridHeight
+  let ratioY = gridHeight / maxY
   let scaleY0 = (w0 * scaleY) / maxY / 2
 
   const xoffset = -2
@@ -141,27 +155,21 @@
 
   const maininc = 1
   let traces: tracesegs[] = []
-  traces.push({ begin: 0, end: 700, inc: maininc, efl: 0, isLens: false })
-  traces.push({ begin: 700, end: 1000, inc: maininc, efl: 96, isLens: true })
-  traces.push({ begin: 1000, end: 1850, inc: maininc, efl: 200, isLens: true })
-  traces.push({ begin: 1850, end: 2000, inc: maininc, efl: 150, isLens: true })
+  let lenses: LatheGeometry[] = []
+  let lenspositions: number[][] = []
+  let lens1posi = 1200
+  let lens1thick = 4
+  traces.push({ begin: 0, end: lens1posi, inc: maininc, efl: 0, isLens: false })
 
-  let lens1 = genSolidLens(5, 100, -100, 5)
+  traces.push({ begin: lens1posi, end: 2000, inc: maininc, efl: lensf, isLens: true })
+  lenses.push(genSolidLens(2.8, 4, -4, lens1thick, ratioZ, ratioY))
+  lenspositions.push([0, 0, toGrid(traces[1].begin, zScale) - (lens1thick / 2) * ratioZ])
 
-  function genLineSegs(waist: number, wavelength: number) {
+  function findMinMaxGauss(waist: number, wavelength: number): [number, number] {
     const z: number[] = []
     const w: number[] = []
-    const wp: number[] = []
-
-    let zrj = (Math.PI * waist * waist) / (wavelength / 1000)
-    let startY = waist * Math.sqrt(1 + (zstart / zrj) * (zstart / zrj))
-    let endY = waist * Math.sqrt(1 + (zend / zrj) * (zend / zrj))
-    maxY = Math.max(startY, endY)
-    maxY = setAxisLimits(0, maxY, zinc)[1] // round up to nearest logical chart scale
-    maxY = wasitMaxScale // override for now
-    scaleY0 = (waist * scaleY) / maxY / 2
-
-    zrj = (Math.PI * waist * waist * n) / ((wavelength * msq) / 1000)
+    traces[0].efl = lensf
+    let zrj = (Math.PI * waistvalue * waistvalue) / (wavelength / 1000)
     let p2: Complex
     let zoffset = 0
 
@@ -169,15 +177,61 @@
       if (index > 0) {
         const mlens = { A: 1, B: 0, C: -1 / trace.efl, D: 1 }
         p2 = Matrix2DxComplex(mlens, p2)
-        const [znew, minwaist, roc, wzsize] = beamProps(p2, λ, msq, n)
+        const [znew, minwaist, roc, wzsize] = beamProps(p2, wavelvalue, msq, n)
         zrj = (Math.PI * minwaist * minwaist * n) / ((wavelength * msq) / 1000)
         zoffset = traces[index - 1].end - znew
       }
-      console.log(trace)
       for (let i = trace.begin; i <= trace.end; i += trace.inc) {
         z.push((i * scaleZ) / (zend - zstart) - scaleZ / 2)
         p2 = { real: i - zoffset, imag: zrj }
-        let wposi = waistSize(p2, λ, msq, n)
+        let wposi = waistSize(p2, wavelvalue, msq, n)
+        w.push(wposi)
+      }
+    })
+
+    return [Math.min(...w), Math.max(...w)]
+  }
+
+  function genLineSegs(
+    waist: number,
+    wavelength: number,
+    eflin: number,
+    lp: number
+  ): [Float32Array, Float32Array, number, number, number] {
+    const z: number[] = []
+    const w: number[] = []
+    const wp: number[] = []
+
+    traces[1].efl = lensf
+    traces[0].end = lensz
+    traces[1].begin = lensz
+
+    lenspositions[0] = [0, 0, toGrid(lensz, zScale) - (lens1thick / 2) * ratioZ]
+    let zrj = (Math.PI * waistvalue * waistvalue) / (wavelength / 1000)
+    maxY = findMinMaxGauss(waist, wavelength)[1]
+    maxY = setAxisLimits(0, maxY * 1.2, 5)[1] // round up to nearest logical chart scale
+    scaleY0 = (waist * scaleY) / maxY / 2
+
+    zrj = (Math.PI * waistvalue * waistvalue * n) / ((wavelength * msq) / 1000)
+    let p2: Complex
+    let zoffset = 0
+    let waistlast = 0
+    let waistlastposition = 0
+
+    traces.forEach((trace, index) => {
+      if (index > 0) {
+        const mlens = { A: 1, B: 0, C: -1 / trace.efl, D: 1 }
+        p2 = Matrix2DxComplex(mlens, p2)
+        const [znew, minwaist, roc, wzsize] = beamProps(p2, wavelvalue, msq, n)
+        waistlast = minwaist
+        waistlastposition = trace.begin - znew
+        zrj = (Math.PI * minwaist * minwaist * n) / ((wavelength * msq) / 1000)
+        zoffset = traces[index - 1].end - znew
+      }
+      for (let i = trace.begin; i <= trace.end; i += trace.inc) {
+        z.push((i * scaleZ) / (zend - zstart) - scaleZ / 2)
+        p2 = { real: i - zoffset, imag: zrj }
+        let wposi = waistSize(p2, wavelvalue, msq, n)
         wp.push((wposi * scaleY) / 2 / maxY)
         w.push((wposi * scaleY) / 2 / maxY)
       }
@@ -194,7 +248,14 @@
       neglinesegs[i * 3 + 1] = -w[i] // set y-coordinate to w[i]
       neglinesegs[i * 3 + 2] = z[i] // set z-coordinate to z[i]
     }
-    return [pluslinesegs, neglinesegs]
+    console.log(toGrid(waistlastposition, zScale))
+    return [
+      pluslinesegs,
+      neglinesegs,
+      waistlast,
+      toGrid(waistlastposition, zScale),
+      waistlast * scaleY0,
+    ]
   }
 
   function calculateMaxY(waist: number, wavelength: number) {
@@ -213,7 +274,7 @@
   // *****************************
 
   // line data to plot beam trajectory
-  $: data = genLineSegs(waistvalue, wavelvalue)
+  $: data = genLineSegs(waistvalue, wavelvalue, lensf, lensz)
 
   // location of waist on grid in gridunits
   $: zWaistGridUnits = toGrid(0, zScale)
@@ -230,8 +291,8 @@
 
 <div class="wrapper">
   {#if showRangeSliders}
-    <div class="absolute ml-24 mt-5 flex flex-row">
-      <div class="ml-5">
+    <div class="absolute ml-24 mt-3 flex h-0 flex-row">
+      <div class="ml-5 h-0">
         <RangeSlider
           name="waist-slider"
           accent="accent-surface-900 dark:accent-surface-300"
@@ -240,14 +301,14 @@
           max={waistmax}
           step={waisttic}
         >
-          <div class="flex items-center justify-between">
-            <div class="text-sm font-bold">Waist(mm)</div>
-            <div class="text-sm font-bold">{waistvalue} / {waistmax}</div>
+          <div class="flex h-0 items-center justify-between">
+            <div class="text-xs font-bold">Waist(mm)</div>
+            <div class="text-xs font-bold">{waistvalue} / {waistmax}</div>
           </div>
         </RangeSlider>
       </div>
 
-      <div class="ml-5">
+      <div class="ml-5 h-0">
         <RangeSlider
           name="wavelength-slider"
           accent="accent-surface-900 dark:accent-surface-300"
@@ -256,9 +317,41 @@
           max={wavelmax}
           step={waveltic}
         >
-          <div class="flex items-center justify-between">
-            <div class="text-sm font-bold">λ(μm)</div>
-            <div class="text-sm font-bold">{wavelvalue} / {wavelmax}</div>
+          <div class="flex h-0 items-center justify-between">
+            <div class="text-xs font-bold">λ(μm)</div>
+            <div class="text-xs font-bold">{wavelvalue} / {wavelmax}</div>
+          </div>
+        </RangeSlider>
+      </div>
+
+      <div class="ml-5 h-0">
+        <RangeSlider
+          name="wavelength-slider"
+          accent="accent-surface-900 dark:accent-surface-300"
+          bind:value={lensf}
+          min={fmin}
+          max={fmax}
+          step={ftic}
+        >
+          <div class="flex h-0 items-center justify-between">
+            <div class="text-xs font-bold">Lens EFL</div>
+            <div class="text-xs font-bold">{lensf} / {fmax}</div>
+          </div>
+        </RangeSlider>
+      </div>
+
+      <div class="ml-5 h-0">
+        <RangeSlider
+          name="wavelength-slider"
+          accent="accent-surface-900 dark:accent-surface-300"
+          bind:value={lensz}
+          min={lenszmin}
+          max={lenszmax}
+          step={ftic}
+        >
+          <div class="flex h-0 items-center justify-between">
+            <div class="text-xs font-bold">Lens Posi</div>
+            <div class="text-xs font-bold">{lensz} / {lenszmax}</div>
           </div>
         </RangeSlider>
       </div>
@@ -274,7 +367,7 @@
     <T.OrthographicCamera
       makeDefault
       position={[-100, 0, 0]}
-      scale={0.6}
+      scale={0.75}
       on:create={({ ref }) => {
         ref.lookAt(0, 0, 0)
       }}
@@ -293,60 +386,34 @@
       <T
         is={Line2}
         geometry={genLineSegment(data[0])}
-        material={new LineMaterial({ color: 0x0000ff, linewidth: 0.01 })}
+        material={new LineMaterial({ color: 0x0000ff, linewidth: 0.005 })}
       />
       <T
         is={Line2}
         geometry={genLineSegment(data[1])}
-        material={new LineMaterial({ color: 0x0000ff, linewidth: 0.01 })}
+        material={new LineMaterial({ color: 0x0000ff, linewidth: 0.005 })}
       />
     </T.Mesh>
 
-    <!-- lens 1 -->
-    <T.Mesh
-      geometry={genSolidLens(70, 200, -200, 10)}
-      position={[0, 0, -65]}
-      rotation={[Math.PI / 2, 0, 0]}
-      let:ref
-    >
-      <T.MeshPhongMaterial
-        color={'red'}
-        opacity={0.4}
-        transparent
-        side={DoubleSide}
-        shininess={100}
-      />
-    </T.Mesh>
+    <!-- lenses -->
+    {#each lenses as lens, i}
+      <T.Mesh
+        geometry={lens}
+        position={[lenspositions[i][0], lenspositions[i][1], lenspositions[i][2]]}
+        rotation={[Math.PI / 2, 0, 0]}
+        let:ref
+      >
+        <T.MeshPhongMaterial
+          color={'red'}
+          opacity={0.4}
+          transparent
+          side={DoubleSide}
+          shininess={100}
+        />
+      </T.Mesh>
+    {/each}
 
-    <T.Mesh
-      geometry={genSolidLens(130, 400, -400, 20)}
-      position={[0, 0, -10]}
-      rotation={[Math.PI / 2, 0, 0]}
-      let:ref
-    >
-      <T.MeshPhongMaterial
-        color={'red'}
-        opacity={0.4}
-        transparent
-        side={DoubleSide}
-        shininess={100}
-      />
-    </T.Mesh>
-
-    <T.Mesh
-      geometry={genSolidLens(130, 400, -400, 20)}
-      position={[0, 0, 160]}
-      rotation={[Math.PI / 2, 0, 0]}
-      let:ref
-    >
-      <T.MeshPhongMaterial
-        color={'red'}
-        opacity={0.4}
-        transparent
-        side={DoubleSide}
-        shininess={100}
-      />
-    </T.Mesh>
+    <!---->
 
     <!-- background plane - in this case along Y-Z aaxis -->
     <T.Mesh position={[0, 0, 0]} rotation={[0, 0, 0]} visible={false}>
@@ -370,6 +437,7 @@
       />
     </T.Mesh>
 
+    <!-- add various axis labels -->
     <T.Group visible={true}>
       <!-- add axis label for Ymax at Xmax -->
       <T.Mesh position={[xoffset, gridHeight, gridWidth]} rotation={[0, -Math.PI / 2, 0]}>
@@ -448,6 +516,35 @@
         anchorY={'bottom'}
       />
     </T.Mesh>
+
+    <!-- Add label and arrow to last waist position and size -->
+    <T.Group visible={true}>
+      <T.Mesh>
+        <T.Line
+          geometry={new BufferGeometry().setFromPoints([
+            new Vector3(0, -55, data[3]),
+            new Vector3(0, -data[4], data[3]),
+          ])}
+          material={new LineDashedMaterial({ color: 'red' })}
+        />
+      </T.Mesh>
+
+      <T.Mesh position={[0, -data[4] - 6, data[3]]} rotation.x={0}>
+        <T.ConeGeometry args={[3, 12]} />
+        <T.MeshStandardMaterial color={'red'} />
+      </T.Mesh>
+
+      <!-- Label mid Line -->
+      <T.Mesh position={[0, -55, data[3]]} rotation.y={-Math.PI / 2} rotation.x={0} visible={true}>
+        <Text
+          text={'Waist: ' + data[2].toFixed(3) + ' mm'}
+          color={'black'}
+          fontSize={10}
+          anchorX={'center'}
+          anchorY={'top'}
+        />
+      </T.Mesh>
+    </T.Group>
 
     <!-- line and label W0 -->
     <!-- <Aline vs={W0Lines} arrow={2} label={'W0'} /> -->

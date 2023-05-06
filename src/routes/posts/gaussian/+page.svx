@@ -33,7 +33,7 @@
 
 ### _Some Interesting Facts & Equations_
 
-<BeamProp4 w0={1} wasitMaxScale={3.0} zstart={0} zend={2000} zinc={100} showRangeSliders={false}/>
+<BeamProp4 w0={1} wasitMaxScale={3.0} zstart={0} zend={2000} zinc={100} showRangeSliders={true}/>
 
 <AtestCanvas/>
 <p style="text-align: center;"> <strong> Figure Test </strong></p>
