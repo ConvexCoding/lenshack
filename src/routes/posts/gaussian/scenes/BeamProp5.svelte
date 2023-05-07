@@ -2,16 +2,7 @@
   import { OrbitControls } from '@threlte/extras'
   import { Canvas, T } from '@threlte/core'
   import { Text } from '@threlte/extras'
-  import {
-    BufferGeometry,
-    DoubleSide,
-    Group,
-    LatheGeometry,
-    LineDashedMaterial,
-    Matrix3,
-    OrthographicCamera,
-    Vector3,
-  } from 'three'
+  import { BufferGeometry, DoubleSide, LatheGeometry, LineDashedMaterial, Vector3 } from 'three'
   import {
     genGridLines,
     genLineSegment,
@@ -20,23 +11,11 @@
     toGrid,
     toWorld,
   } from '$lib/mathUtils'
-  import Coords from '$lib/Coords.svelte'
   import { Line2 } from 'three/examples/jsm/lines/Line2'
   import { LineMaterial } from 'three/examples/jsm/lines/LineMaterial'
   import { RangeSlider } from '@skeletonlabs/skeleton'
-  import Aline from '$lib/Aline.svelte'
-  import AlineVertical from '$lib/AlineVertical.svelte'
 
-  import * as math from 'mathjs'
-
-  import {
-    type Complex,
-    type Matrix2D,
-    Reciprocal,
-    Matrix2DxComplex,
-    waistSize,
-    beamProps,
-  } from '$lib/Gcomplex'
+  import { type Complex, Matrix2DxComplex, waistSize, beamProps } from '$lib/Gcomplex'
 
   export let w0 = 1
   export let λ = 1
@@ -48,58 +27,7 @@
   export let showRangeSliders = true
   export let wasitMaxScale = 15.0
 
-  let showWZ = true
-  let showZr = true
-
-  // 1/q(z) = 1/R(z) - i ((λ msq) / (π w(z)^2))
-  // q(z) = R(z) + i z_r
-  // z_r = (π w0^2) / (λ msq / 1000)
-  // R(z) = z (1 + (z_r / z)^2)
-
-  let zr = (Math.PI * w0 * w0) / ((λ * msq) / 1000)
-  //console.log('🚀 ~ zr:', zr)
-
-  let p0: Complex = { real: 0, imag: zr }
-  let p2: Complex = { real: zend, imag: zr }
-
-  //console.log('🚀 ~ p2:', p2)
-  let p2recip = Reciprocal(p2)
-  //console.log('🚀 ~ p2recip:', p2recip)
-
-  let m: Matrix2D = { A: 1, B: zend, C: 0, D: 1 }
-
-  //console.log('🚀 ~ zend:', zend)
-  //console.log('🚀 ~ p0:', p0)
-  let pi = Matrix2DxComplex(m, p0)
-  //console.log('🚀 ~ p2matrix:', pi)
-  //console.log('🚀 ~ p2:', p2)
-
-  let wz = waistSize(p2, λ, msq, n)
-  //console.log('🚀 ~ wz:', wz)
-
-  let mlens: Matrix2D = { A: 1, B: 0, C: -1 / 100, D: 1 }
-  let plens = Matrix2DxComplex(mlens, { real: 1000, imag: zr })
-  //console.log('🚀 ~ plens:', plens)
-  let zrlens = plens.imag
-  //console.log('🚀 ~ zrlens:', zrlens)
-  let wlens = waistSize(plens, λ, msq, n)
-  //console.log('🚀 ~ wlens:', wlens)
-  //console.log(beamProps(plens, λ, msq, n))
-  //let wi =
-
-  // x = ((λ * msq / 1000) / (Math.PI * wz^2))
-  // Math.PI * wz^2 = ((λ * msq / 1000) / x)
-  // wz^2 = ((λ * msq / 1000) / (Math.PI * x))
-
-  //let wz = Math.sqrt((λ * msq) / 1000 / (Math.PI * x))
-  //console.log('🚀 ~ wz:', wz)
-
-  // 1/q(z) = 1/R(z) - i ((λ msq) / (π w(z)^2))
-
-  // Generate a plot with horizontal axis along z and vertical axis along y
-  // where waist radius is mapped to the y axis
-  // and the z distance is mapped to the z axis
-
+  // define slider values for input waist, wavelength, lens focal length, and lens position
   let waistvalue = w0
   let waistmin = 0.05
   let waistmax = 5.0
@@ -110,12 +38,12 @@
   let wavelmax = 20
   let waveltic = 1
 
-  let lensf = 375
+  let lensf = 150
   let fmin = 50
   let fmax = 500
   let ftic = 25
 
-  let lensz = 1200
+  let lensz = 300
   let lenszmin = 200
   let lenszmax = 1800
   let lensztic = 25
@@ -129,10 +57,9 @@
     [-gridWidth, gridWidth],
   ]
 
-  // set constants
-  // realize this could be one statement but it's easier to read this way
-  $: zr = (Math.PI * waistvalue * waistvalue) / wavelvalue
-  let maxY = w0 * Math.sqrt(1 + (zend / zr) * (zend / zr)) // max waist size needed for scale chart
+  // Calculate start values for maxY and scales and ratios
+  let zrtemp = (Math.PI * waistvalue * waistvalue) / wavelvalue
+  let maxY = w0 * Math.sqrt(1 + (zend / zrtemp) * (zend / zrtemp)) // max waist size needed for scale chart
   maxY = setAxisLimits(0, maxY, zinc)[1] // round up to nearest logical chart scale
   maxY = wasitMaxScale // override for now
 
@@ -153,18 +80,29 @@
     isLens: boolean
   }
 
+  // build up lens and trace arrays
   const maininc = 1
   let traces: tracesegs[] = []
   let lenses: LatheGeometry[] = []
   let lenspositions: number[][] = []
-  let lens1posi = 1200
-  let lens1thick = 4
-  traces.push({ begin: 0, end: lens1posi, inc: maininc, efl: 0, isLens: false })
 
-  traces.push({ begin: lens1posi, end: 2000, inc: maininc, efl: lensf, isLens: true })
-  lenses.push(genSolidLens(2.8, 4, -4, lens1thick, ratioZ, ratioY))
-  lenspositions.push([0, 0, toGrid(traces[1].begin, zScale) - (lens1thick / 2) * ratioZ])
+  let lens1posi = 300
+  let lens1thick = 3
 
+  traces.push({ begin: 0, end: 300, inc: maininc, efl: 0, isLens: false })
+  traces.push({ begin: traces[0].end, end: 800, inc: maininc, efl: 150, isLens: true })
+  traces.push({ begin: traces[1].end, end: 1550, inc: maininc, efl: 350, isLens: true })
+  traces.push({ begin: traces[2].end, end: 2000, inc: maininc, efl: 400, isLens: true })
+
+  lenses.push(genSolidLens(1.2, 4, -4, 2, ratioZ, ratioY))
+  lenses.push(genSolidLens(2.5, 4, -4, 3.4, ratioZ, ratioY))
+  lenses.push(genSolidLens(2.5, 4, -4, 3.4, ratioZ, ratioY))
+
+  lenspositions.push([0, 0, toGrid(traces[1].begin, zScale) - (2 / 2) * ratioZ])
+  lenspositions.push([0, 0, toGrid(traces[2].begin, zScale) - (3.4 / 2) * ratioZ])
+  lenspositions.push([0, 0, toGrid(traces[3].begin, zScale) - (3.4 / 2) * ratioZ])
+
+  // main function for computing lens segs
   function findMinMaxGauss(waist: number, wavelength: number): [number, number] {
     const z: number[] = []
     const w: number[] = []
@@ -206,11 +144,11 @@
     traces[0].end = lensz
     traces[1].begin = lensz
 
-    lenspositions[0] = [0, 0, toGrid(lensz, zScale) - (lens1thick / 2) * ratioZ]
+    lenspositions[0] = [0, 0, toGrid(lensz, zScale) - (2 / 2) * ratioZ]
     let zrj = (Math.PI * waistvalue * waistvalue) / (wavelength / 1000)
     maxY = findMinMaxGauss(waist, wavelength)[1]
     maxY = setAxisLimits(0, maxY * 1.2, 5)[1] // round up to nearest logical chart scale
-    scaleY0 = (waist * scaleY) / maxY / 2
+    scaleY0 = (waistvalue * scaleY) / maxY / 2
 
     zrj = (Math.PI * waistvalue * waistvalue * n) / ((wavelength * msq) / 1000)
     let p2: Complex
@@ -224,6 +162,14 @@
         p2 = Matrix2DxComplex(mlens, p2)
         const [znew, minwaist, roc, wzsize] = beamProps(p2, wavelvalue, msq, n)
         waistlast = minwaist
+        console.log(index, znew.toFixed(0), wzsize.toFixed(3))
+        if (index === 1) {
+          const radius = wzsize / 0.9
+          const sag = 4 - Math.sqrt(16 - radius * radius)
+          const th = sag * 2 + 1.4
+          lenses[0] = genSolidLens(radius, 4, -4, th, ratioZ, gridHeight / maxY)
+          lenspositions[0] = [0, 0, toGrid(traces[1].begin, zScale) - (th / 2) * ratioZ]
+        }
         waistlastposition = trace.begin - znew
         zrj = (Math.PI * minwaist * minwaist * n) / ((wavelength * msq) / 1000)
         zoffset = traces[index - 1].end - znew
@@ -248,45 +194,23 @@
       neglinesegs[i * 3 + 1] = -w[i] // set y-coordinate to w[i]
       neglinesegs[i * 3 + 2] = z[i] // set z-coordinate to z[i]
     }
-    console.log(toGrid(waistlastposition, zScale))
     return [
       pluslinesegs,
       neglinesegs,
       waistlast,
       toGrid(waistlastposition, zScale),
-      waistlast * scaleY0,
+      (waistlast * gridHeight) / maxY,
     ]
   }
 
-  function calculateMaxY(waist: number, wavelength: number) {
-    const zrj = (Math.PI * waist * waist) / (wavelength / 1000)
-    let startY = waist * Math.sqrt(1 + (zstart / zrj) * (zstart / zrj))
-    let endY = waist * Math.sqrt(1 + (zend / zrj) * (zend / zrj))
-    maxY = Math.max(startY, endY)
-    maxY = setAxisLimits(0, maxY, zinc)[1] // round up to nearest logical chart scale
-    maxY = wasitMaxScale // override for now
-    return maxY
-  }
+  // line data to plot beam trajectory + some data for final waist marker
+  $: data = genLineSegs(waistvalue, wavelvalue, lensf, lensz)
 
   // generate grid lines
-  // *****************************
   let gridLines = genGridLines(xoffset, gridWidth, gridHeight, 5)
-  // *****************************
-
-  // line data to plot beam trajectory
-  $: data = genLineSegs(waistvalue, wavelvalue, lensf, lensz)
 
   // location of waist on grid in gridunits
   $: zWaistGridUnits = toGrid(0, zScale)
-
-  function ScaleZValue(z: number) {
-    return ((z - zstart) * scaleZ) / (zend - zstart) - scaleZ / 2
-    //(i - zstart) * scaleZ) / (zend - zstart) - scaleZ / 2
-  }
-
-  function ScaleWValue(z: number) {
-    return (z * scaleY) / 2 / maxY
-  }
 </script>
 
 <div class="wrapper">
@@ -347,7 +271,7 @@
           bind:value={lensz}
           min={lenszmin}
           max={lenszmax}
-          step={ftic}
+          step={lensztic}
         >
           <div class="flex h-0 items-center justify-between">
             <div class="text-xs font-bold">Lens Posi</div>
@@ -359,10 +283,6 @@
   {/if}
 
   <Canvas>
-    <!--
-<Coords locXYZ={new Vector3(-40, 0, -scaleZ / 2 + 60)} />
--->
-
     <!-- Add Camera -->
     <T.OrthographicCamera
       makeDefault
@@ -412,8 +332,6 @@
         />
       </T.Mesh>
     {/each}
-
-    <!---->
 
     <!-- background plane - in this case along Y-Z aaxis -->
     <T.Mesh position={[0, 0, 0]} rotation={[0, 0, 0]} visible={false}>
@@ -545,20 +463,5 @@
         />
       </T.Mesh>
     </T.Group>
-
-    <!-- line and label W0 -->
-    <!-- <Aline vs={W0Lines} arrow={2} label={'W0'} /> -->
-
-    <!-- line and label W0 -->
-    <!-- <Aline vs={WZLines} arrow={2} label={'Wz = W0 * Sqrt(2)'} /> -->
-
-    <!-- line and label Zr -->
-    <!-- <Aline
-      vs={ZrLines}
-      arrow={3}
-      label={'Rayleigh Length: Zr'}
-      textAX={'center'}
-      textAY={'bottom'}
-    /> -->
   </Canvas>
 </div>

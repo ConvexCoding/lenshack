@@ -7,6 +7,12 @@
   import GaussIntensityEquationCard from './equations/GaussIntensityEquationCard.svelte'
   import GaussPropShortCard from   './equations/GaussPropShortCard.svelte'
   import GaussPropFullCard from   './equations/GaussPropFullCard.svelte'
+  import SourceMatrix from './equations/SourceMatrix.svelte'
+  import AveragePowerDensityCard from './equations/AveragePowerDensityCard.svelte'
+  import PeakPowerDensityCard from './equations/PeakPowerDensityCard.svelte'
+  import DistanceMatrix from './equations/DistanceMatrix.svelte'
+  import LensMatrix from './equations/LensMatrix.svelte'
+
   import GaussDistributionChart2D from './scenes/GaussDistributionChart2D.svelte'
   import GaussDistributionChart3D from './scenes/GaussDistributionChart3D.svelte'
   import Scene from './scenes/Scene.svelte'
@@ -17,11 +23,12 @@
   import BeamProp2 from './scenes/BeamProp2.svelte'
   import BeamProp3 from './scenes/BeamProp3.svelte'
   import BeamProp4 from './scenes/BeamProp4.svelte'
-  import { RangeSlider, SlideToggle } from '@skeletonlabs/skeleton'
+  import BeamProp5 from './scenes/BeamProp5.svelte'
   import Form from './scenes/Form.svelte'
+  
+  import { RangeSlider, SlideToggle } from '@skeletonlabs/skeleton'
   import AtestCanvas from './scenes/AtestCanvas.svelte'
-  import AveragePowerDensityCard from './equations/AveragePowerDensityCard.svelte'
-  import PeakPowerDensityCard from './equations/PeakPowerDensityCard.svelte'
+
 
   let fignum = 1
   let equnum = 1
@@ -33,7 +40,51 @@
 
 ### _Some Interesting Facts & Equations_
 
-<BeamProp4 w0={1} wasitMaxScale={3.0} zstart={0} zend={2000} zinc={100} showRangeSliders={true}/>
+
+**************
+
+The source beam is represented by a 2x1 matrix 
+
+<div class="flex gap-4">
+  <SourceMatrix />
+    <div class="card variant-soft-primary p-4 text-sm">
+    <h6>Here:</h6>
+    <ol class="list-inside list-disc">
+      <li>q: complex source definition</li>
+      <li>z: distance from waist w0</li>
+      <li>zr: Rayleigh Length constant for beam</li>
+      <li>i: is the square root of -1</li>
+    </ol>
+  </div>
+</div>
+<p style="text-align: center;"> <strong> Equation {equnum++} - Gaussian Source Matrix</strong></p>
+
+Each optical element in the system is represented by a 2x2 matrix, which describes how the element affects the beam. These transfer matrices can be used to just propagate a beam through space and focus the beam with lens, as well as a host of other operations. The two most important operations for our discussion is to propagate the beam through a distance and also change the beam waist with a lens. The propagate transfer matrix and lens matrix are shown below.
+ 
+<div class="flex gap-4">
+  <DistanceMatrix />
+  <LensMatrix />
+      <div class="card variant-soft-primary p-4 text-sm">
+    <h6>Here:</h6>
+    <ol class="list-inside list-disc">
+      <li>d: distance to propagate beam</li>
+      <li>f: focal length of lens </li>
+    </ol>
+  </div>
+</div>
+<p style="text-align: center;"> <strong>Two Key Ray Transfer Matrices</strong></p>
+
+
+The matrices are multiplied together in the order that the elements appear in the system, to create a single "system matrix" that represents the entire optical system.
+
+The system matrix can be used to calculate the properties of the Gaussian beam as it propagates through the system. For example, we can use the matrix to find the beam waist (the point of minimum beam size) and the divergence angle of the beam.
+
+If we want to analyze the effect of another optical element on the beam, we can simply multiply the existing system matrix by the matrix representing the new element.
+
+**************
+
+
+<BeamProp5 w0={1} wasitMaxScale={3.0} zstart={0} zend={2000} zinc={100} showRangeSliders={true}/>
 
 <AtestCanvas/>
 <p style="text-align: center;"> <strong> Figure Test </strong></p>
@@ -163,15 +214,11 @@ The above figure shows a LensKit.App (https://www.lenskit.app/) model of a laser
 </div>
 <p style="text-align: center;"> <strong> Equation {equnum++} - Spot Size at Focus of Lens </strong></p>
 
-Here f is the focal length of the lens, D is the gaussian beam diameter (2 * w0), and of course λ is, as in all other equations in this post, the wavelength of the laser light. If the focal length and beam diameter are in mm's, and the wavelength in microns, then the resulting spot size, ss, will be in microns. The sketch below shows what this might look like graphically.
-
-/// Beam prop 4 goes here
+Here f is the focal length of the lens, D is the gaussian beam diameter (2 * w0), and of course λ is, as in all other equations in this post, the wavelength of the laser light. If the focal length and beam diameter are in mm's, and the wavelength in microns, then the resulting spot size, ss, will be in microns. The sketch below shows what this might look like graphically. Move the sliders to show how the gaussian beam reacts under various combinations of wavelength, waist, lens focal length, and lens position.
 
 
-<p style="text-align: center;"> <strong> GFigure {fignum++} - Gauss Ray Tracer  </strong></p>
-
-<img class="h-64 w-auto m-5" src="/gausswithlens.webp" alt={'dummy'} />
-<p style="text-align: center;"> <strong> Figure {fignum++} </strong></p>
+<BeamProp4 w0={1} wasitMaxScale={3.0} zstart={0} zend={2000} zinc={100} showRangeSliders={true}/>
+<p style="text-align: center;"> <strong> Figure {fignum++} - Gauss Ray Tracer  </strong></p>
 
 In general a lens will perform a fourier transform on the input beam of light. The intensity distribution at focus will depend on the intensity distribution of the input light. So for a light beam with a uniform intensity, the intensity distribution at focus of a lens will have an Airy Disc distribution. One of the important aspects of a light beam with a gaussian distribution is the fourier transform by a lens produces a gaussian distribution at focus. In fact the beam will have a gaussian distribution at all points along its path, assuming that any lens or mirror the beam encounters is free of aberrations. The equation for the intensity distribution of a gaussian beam is:
 
@@ -227,6 +274,31 @@ This is just the power density that occurs in the center of the gaussian beam.
 <GaussDistributionChart2D w0={0.2} intensity={1} gridWidth={200} showESquared={false} showPeakPowerZone={true}/>
 
 <p style="text-align: center;"> <strong> Figure {fignum++} </strong></p>
+
+### Modeling Complicated Lens Systems
+
+For most laser and laser beam applications focusing the light to do some sort of work is the ultimate goal. Often times using only the raw laser beam and a single lens (for example Figure 3) is not sufficient to get the proper shape or size of focus. In fact most beam delivery systems are made up of multiple lens and mirrors that direct a laser beam from it's source to a work piece. 
+
+Lasers that produce relatively large laser beams, like the CO<sub>2</sub> laser, sometimes don't need beam modifying lenses. Their beams can just be transported to the work piece using some mirrors and a final focusing lens. Other types of lasers, like the fiber laser, produce small beams that may need collimating lenses, beam expander lenses, and of course the final focusing lens.
+
+It is possible to use Equations 1 - 5 to model these more complicated lens systems by carefully calculating the waist size and position after each lens. Then use these results as input to the next lens. Using this system it is possible to work your way through the entire lens system. Fortunately there is a better approach - the ABCD Matrix Method applied to gaussian beams.
+
+The ABCD matrix method is a simple and powerful way to analyze the propagation of Gaussian beams through optical systems. It uses a set of matrices to represent the effect of each optical element on the beam, allowing us to calculate important parameters such as waist size, Rayleigh Length, radius of curvature of the wavefront, and location and size of the minimum waist.
+
+**************
+
+
+**************
+
+
+
+
+
+
+
+
+
+
 
 <div class="wrapper">
   <Canvas>
