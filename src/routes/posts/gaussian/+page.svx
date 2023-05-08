@@ -12,6 +12,9 @@
   import PeakPowerDensityCard from './equations/PeakPowerDensityCard.svelte'
   import DistanceMatrix from './equations/DistanceMatrix.svelte'
   import LensMatrix from './equations/LensMatrix.svelte'
+  import DistSourceMulti from './equations/DistSourceMulti.svelte'
+  import LensSourceMulti from './equations/LensSourceMulti.svelte'
+  import InverseQ from './equations/InverseQ.svelte'
 
   import GaussDistributionChart2D from './scenes/GaussDistributionChart2D.svelte'
   import GaussDistributionChart3D from './scenes/GaussDistributionChart3D.svelte'
@@ -24,6 +27,7 @@
   import BeamProp3 from './scenes/BeamProp3.svelte'
   import BeamProp4 from './scenes/BeamProp4.svelte'
   import BeamProp5 from './scenes/BeamProp5.svelte'
+  import BeamProp6 from './scenes/BeamProp6.svelte'
   import Form from './scenes/Form.svelte'
   
   import { RangeSlider, SlideToggle } from '@skeletonlabs/skeleton'
@@ -40,51 +44,11 @@
 
 ### _Some Interesting Facts & Equations_
 
-
-**************
-
-The source beam is represented by a 2x1 matrix 
-
-<div class="flex gap-4">
-  <SourceMatrix />
-    <div class="card variant-soft-primary p-4 text-sm">
-    <h6>Here:</h6>
-    <ol class="list-inside list-disc">
-      <li>q: complex source definition</li>
-      <li>z: distance from waist w0</li>
-      <li>zr: Rayleigh Length constant for beam</li>
-      <li>i: is the square root of -1</li>
-    </ol>
-  </div>
-</div>
-<p style="text-align: center;"> <strong> Equation {equnum++} - Gaussian Source Matrix</strong></p>
-
-Each optical element in the system is represented by a 2x2 matrix, which describes how the element affects the beam. These transfer matrices can be used to just propagate a beam through space and focus the beam with lens, as well as a host of other operations. The two most important operations for our discussion is to propagate the beam through a distance and also change the beam waist with a lens. The propagate transfer matrix and lens matrix are shown below.
- 
-<div class="flex gap-4">
-  <DistanceMatrix />
-  <LensMatrix />
-      <div class="card variant-soft-primary p-4 text-sm">
-    <h6>Here:</h6>
-    <ol class="list-inside list-disc">
-      <li>d: distance to propagate beam</li>
-      <li>f: focal length of lens </li>
-    </ol>
-  </div>
-</div>
-<p style="text-align: center;"> <strong>Two Key Ray Transfer Matrices</strong></p>
-
-
-The matrices are multiplied together in the order that the elements appear in the system, to create a single "system matrix" that represents the entire optical system.
-
-The system matrix can be used to calculate the properties of the Gaussian beam as it propagates through the system. For example, we can use the matrix to find the beam waist (the point of minimum beam size) and the divergence angle of the beam.
-
-If we want to analyze the effect of another optical element on the beam, we can simply multiply the existing system matrix by the matrix representing the new element.
-
 **************
 
 
-<BeamProp5 w0={1} wasitMaxScale={3.0} zstart={0} zend={2000} zinc={100} showRangeSliders={true}/>
+
+**************
 
 <AtestCanvas/>
 <p style="text-align: center;"> <strong> Figure Test </strong></p>
@@ -285,19 +249,101 @@ It is possible to use Equations 1 - 5 to model these more complicated lens syste
 
 The ABCD matrix method is a simple and powerful way to analyze the propagation of Gaussian beams through optical systems. It uses a set of matrices to represent the effect of each optical element on the beam, allowing us to calculate important parameters such as waist size, Rayleigh Length, radius of curvature of the wavefront, and location and size of the minimum waist.
 
+The source beam is represented by a 2x1 matrix or vector: 
+
+<div class="flex gap-4">
+  <SourceMatrix />
+    <div class="card variant-soft-primary p-4 text-sm">
+    <h6>Here:</h6>
+    <ol class="list-inside list-disc">
+      <li>q: complex source definition</li>
+      <li>z: distance from waist w0</li>
+      <li>zr: Rayleigh Length constant for beam</li>
+      <li>i: is the square root of -1</li>
+    </ol>
+  </div>
+</div>
+<p style="text-align: center;"> <strong> Equation {equnum++} - Gaussian Source Vector</strong></p>
+
+Each optical element in the system is represented by a 2x2 matrix, which describes how the element affects the beam. These transfer matrices can be used to just propagate a beam through space and focus the beam with lens, as well as a host of other operations. The two most important operations for our discussion is to propagate the beam through a distance and also change the beam waist with a lens. The propagate transfer matrix and lens matrix are shown below.
+ 
+<div class="flex gap-4">
+  <DistanceMatrix />
+  <LensMatrix />
+      <div class="card variant-soft-primary p-4 text-sm">
+    <h6>Here:</h6>
+    <ol class="list-inside list-disc">
+      <li>d: distance to propagate beam</li>
+      <li>f: focal length of lens </li>
+    </ol>
+  </div>
+</div>
+<p style="text-align: center;"> <strong>Equation {equnum++} (a) &  (b) - Two Key Ray Transfer Matrices</strong></p>
+
+The matrices are multiplied together in the order that the elements appear in the system. These matrix multiplications are used to calculate the properties of the Gaussian beam as it propagates through the system. For example, we can use the matrix to find the beam waist (the point of minimum beam size) and the divergence angle of the beam. If we want to analyze the effect of another optical element on the beam, we can simply multiply the existing system matrix by the matrix representing the new element.
+
+For example suppose we want to just propagate a laser beam with a Rayleigh length of z<sub>r</sub> through a distance d through space. If we assume that the starting point for the system is at the current beam waist (z=0), the complex source vector is then q = z<sub>r</sub>∙_i_. Then the modified Source Vector (q') in space at location d is given by the matrix operation:
+
+<div class="flex gap-4">
+  <DistSourceMulti />
+    <div class="card variant-soft-primary p-4 text-sm">
+    <h6>Here:</h6>
+    <ol class="list-inside list-disc">
+      <li>q': the transformed source vector</li>
+      <li>d: propagation distance</li>
+      <li>zr: Rayleigh Length constant for beam</li>
+    </ol>
+  </div>
+</div>
+<p style="text-align: center;"> <strong> Equation {equnum++} - Distance Transform Matrix times Source Vector</strong></p>
+
+In the same way, if we want to know how a lens transforms the gaussian beam, we multiply the Lens Transform Matrix by the Source Cector.
+
+<div class="flex gap-4">
+  <LensSourceMulti />
+    <div class="card variant-soft-primary p-4 text-sm">
+    <h6>Here:</h6>
+    <ol class="list-inside list-disc">
+      <li>q': the transformed source vector</li>
+      <li>f: focal length of lens</li>
+      <li>zr: Rayleigh Length constant for beam</li>
+    </ol>
+  </div>
+</div>
+<p style="text-align: center;"> <strong> Equation {equnum++} - Lens Transfer Matrix times Source Vector</strong></p>
+
+Using these types of operations we can find the properties of a transformed gaussian beam. The equation for q' provides the distance from the waist and the new Rayleigh Length. And since the Rayleigh Length is a function of the transformed beam waist, we now have that value also. Finally, if we take the inverse of q' (1/q') we get the final pieces of information that would be needed for ray tracing.
+
+<div class="flex gap-4">
+  <InverseQ />
+    <div class="card variant-soft-primary p-4 text-sm">
+    <h6>Here:</h6>
+    <ol class="list-inside list-disc">
+      <li>q': the transformed source vector</li>
+      <li>z: distance from the source waist</li>
+      <li>R(z): radius of curvature of beam at position z</li>
+      <li>M2: this is beam quality product usually = 1</li>
+      <li>λ: wavelength of light beam</li>
+      <li>n: index of refraction of propagation medium</li>
+      <li>w(z): beam radius at position z</li>
+    </ol>
+  </div>
+</div>
+<p style="text-align: center;"> <strong> Equation {equnum++} - Distance Transfer Matrix times Source Vector</strong></p>
+
+This matrix method allows us to add lens to a system and predict the beam transformation at each stage. 
+
+<BeamProp5 />
+
+<p style="text-align: center;"> <strong> Figure {fignum++} - Adding Lens to System Using Matrix Math to Plot Beam Propagation</strong></p>
+
+And once the source and lens parameters are defined, a complete beam delivery system can be modeled.
+
+<BeamProp6 w0={1} wasitMaxScale={3.0} zstart={0} zend={2000} zinc={100} showRangeSliders={true}/>
+
+<p style="text-align: center;"> <strong> Figure {fignum++} - Finished System Model (Beam Expander and Focusing Lens)</strong></p>
 **************
-
-
 **************
-
-
-
-
-
-
-
-
-
 
 
 <div class="wrapper">
