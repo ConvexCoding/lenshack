@@ -162,7 +162,7 @@
         p2 = Matrix2DxComplex(mlens, p2)
         const [znew, minwaist, roc, wzsize] = beamProps(p2, wavelvalue, msq, n)
         waistlast = minwaist
-        console.log(index, znew.toFixed(0), wzsize.toFixed(3))
+        //console.log(index, znew.toFixed(0), wzsize.toFixed(3))
         if (index === 1) {
           const radius = wzsize / 0.9
           const sag = 4 - Math.sqrt(16 - radius * radius)
