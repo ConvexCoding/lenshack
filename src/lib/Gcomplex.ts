@@ -53,7 +53,7 @@ export function waistSize(q: Complex, λ: number, msq: number, n: number): numbe
 export function beamProps(q: Complex, λ: number, msq: number, n: number): [number, number, number, number] {
 
   const qrecip = Reciprocal(q)
-  const wz = Math.sqrt((-λ * msq) / 1000 / (n * Math.PI * Reciprocal(q).imag))
+  const wz = Math.sqrt((-λ * msq) / 1000 / (n * Math.PI * qrecip.imag))
   
   const znew = q.real
   const roc = 1 / qrecip.real
